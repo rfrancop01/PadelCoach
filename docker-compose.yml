@@ -1,0 +1,17 @@
+
+services:
+  db:
+    image: postgres:14
+    container_name: padelcoach_db
+    restart: always
+    environment:
+      POSTGRES_USER: padelcoach
+      POSTGRES_PASSWORD: padelcoach123
+      POSTGRES_DB: padelcoach_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
