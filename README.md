@@ -96,7 +96,7 @@ PadelCoach/
 
 ## ✍️ Autor
 
-Desarrollado por [Ricardo Francop](https://github.com/rfrancop01) como proyecto personal para aprendizaje y portfolio profesional.
+Desarrollado por [Ricardo Franco Pérez](https://github.com/rfrancop01) como proyecto personal para aprendizaje y portfolio profesional.
 
 ---
 
