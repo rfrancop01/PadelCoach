@@ -56,7 +56,7 @@ PadelCoach/
 
 ---
 
-##📊 Base de datos
+## 📊 Base de datos
 
 <img width="1503" alt="Captura de pantalla 2025-03-31 a las 9 26 19" src="https://github.com/user-attachments/assets/f8e92723-655d-4759-b3c3-46d7d606abca" />
 
