@@ -3,8 +3,6 @@ from . import db
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-db = SQLAlchemy()
-
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -16,10 +14,6 @@ class Users(db.Model):
     role = db.Column(db.String(50), nullable=False)  # Rol del usuario: 'admin', 'trainer', 'student'
     is_active = db.Column(db.Boolean, default=True)  # Estado del usuario: activo o inactivo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # student_id = db.Column(db.Integer(), db.ForeignKey('students.id'))
-    # trainer_id = db.Column(db.Integer(), db.ForeignKey('trainers.id'))
-    # student_to = db.relationship("Students", foreign_keys=[student_id], backref="user_to")
-    # trainer_to = db.relationship("Trainers", foreign_keys=[trainer_id], backref="user_to")
 
     def __repr__(self):
         return f'<User: {self.id} - {self.email} - Role: {self.role}>'
@@ -44,7 +38,6 @@ class Users(db.Model):
         return check_password_hash(self.password_hash, password)
 
 class Students(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     level = db.Column(db.Enum('Primera', 'Segunda', 'Tercera', 'Cuarta', 'Iniciación', 'Competición', name='level_enum'), nullable=False)  # Nivel del estudiante
     age = db.Column(db.Integer, nullable=False)
@@ -66,7 +59,6 @@ class Students(db.Model):
         }
 
 class Trainers(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Boolean, default=True)  # Estado del entrenador: activo o inactivo
     sessions = db.relationship('Sessions', backref='trainer')
