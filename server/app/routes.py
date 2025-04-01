@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from . import db
-from .models import User
+from .models import Users
 
 api = Blueprint('api', __name__)
 
@@ -9,7 +9,7 @@ def add_user():
     data = request.get_json()  # Recibe el JSON enviado al endpoint
     
     # Crear un nuevo usuario
-    new_user = User(name=data["name"], last_name=data["last_name"], email=data["email"], role=data["role"])
+    new_user = Users(name=data["name"], last_name=data["last_name"], email=data["email"], role=data["role"])
     
     try:
         db.session.add(new_user)
