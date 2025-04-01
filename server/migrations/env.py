@@ -2,6 +2,7 @@ import logging
 from logging.config import fileConfig
 
 from flask import current_app
+from app.models import Users, Sessions, Students, Trainers, Courts, SessionsStudents
 
 from alembic import context
 
