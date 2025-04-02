@@ -36,6 +36,9 @@ class Users(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    """ def add_user():
+        pass """
 
 class Students(db.Model):
     id = db.Column(db.Integer, primary_key=True)

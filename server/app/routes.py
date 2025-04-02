@@ -133,7 +133,7 @@ def create_user():
         name=name,
         last_name=last_name,
         phone=phone,
-        role=data.get("role", "user"),
+        role=data.get("role", "student"),
         is_active=True
     )
     new_user.set_password(password)
@@ -194,7 +194,7 @@ def create_student():
     user_id = data.get("user_id")
     if not level or not age or not user_id:
         return jsonify({"message": "level, age and user_id are required"}), 400
-    new_student = Students(level=level, age=age, is_active=True, user_id=user_id)
+    new_student = Students(level=level, age=age, user_id=user_id)
     db.session.add(new_student)
     db.session.commit()
     return jsonify({"message": "Student created successfully", "results": new_student.serialize()}), 201
@@ -235,7 +235,7 @@ def create_trainer():
     user_id = data.get("user_id")
     if not user_id:
         return jsonify({"message": "user_id is required"}), 400
-    new_trainer = Trainers(is_active=True, user_id=user_id)
+    new_trainer = Trainers(user_id=user_id)
     db.session.add(new_trainer)
     db.session.commit()
     return jsonify({"message": "Trainer created successfully", "results": new_trainer.serialize()}), 201
@@ -271,11 +271,11 @@ def list_courts():
 def create_court():
     data = request.json
     name = data.get("name")
-    court_type = data.get("type")
+    court_type = data.get("court_type")
     location = data.get("location")
     if not name or not court_type or not location:
-        return jsonify({"message": "name, type and location are required"}), 400
-    new_court = Courts(name=name, type=court_type, location=location)
+        return jsonify({"message": "name, court type and location are required"}), 400
+    new_court = Courts(name=name, court_type=court_type, location=location)
     db.session.add(new_court)
     db.session.commit()
     return jsonify({"message": "Court created successfully", "results": new_court.serialize()}), 201
@@ -291,7 +291,7 @@ def manage_court(id):
     elif request.method == 'PUT':
         data = request.json
         court.name = data.get("name", court.name)
-        court.type = data.get("type", court.type)
+        court.type = data.get("court_type", court.court_type)
         court.location = data.get("location", court.location)
         db.session.commit()
         return jsonify({"message": f"Court {id} updated successfully", "results": court.serialize()}), 200
