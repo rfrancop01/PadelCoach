@@ -11,7 +11,7 @@ class Users(db.Model):
     phone = db.Column(db.String(20), nullable=True)
     photo_url = db.Column(db.String(255), nullable=True)  # URL de la foto de perfil del usuario
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.Enum('Admin', 'Trainer', 'Student', name='role_enum'), nullable=False)  # Rol del usuario: 'admin', 'trainer', 'student'
+    role = db.Column(db.String(20), nullable=False)  # Rol del usuario: 'admin', 'trainer', 'student'
     is_active = db.Column(db.Boolean, default=True)  # Estado del usuario: activo o inactivo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

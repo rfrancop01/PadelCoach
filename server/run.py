@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_jwt_extended import JWTManager
 from app.models import Users, Students, Trainers, Courts, Sessions, SessionsStudents
 
 class CustomUserAdmin(ModelView):
@@ -17,6 +18,7 @@ class CustomUserAdmin(ModelView):
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    jwt = JWTManager(app)
     logging.basicConfig(level=logging.INFO)
 
     db.init_app(app)
