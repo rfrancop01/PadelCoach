@@ -5,9 +5,7 @@ from . import db
 
 api = Blueprint('api', __name__)
 
-# ------------------------------
 # Endpoints de autenticación y protección
-# ------------------------------
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -37,9 +35,7 @@ def protected():
         "role": claims.get("role")
     }), 200
 
-# ------------------------------
 # Endpoints para Users
-# ------------------------------
 
 @api.route('/admins', methods=['GET'])
 @jwt_required()
@@ -130,9 +126,7 @@ def manage_user(id):
         db.session.commit()
         return jsonify({"message": f"User {id} deactivated successfully"}), 200
 
-# ------------------------------
 # Endpoints para Students
-# ------------------------------
 
 @api.route('/students', methods=['GET'])
 @jwt_required()
@@ -176,9 +170,7 @@ def manage_student(id):
         db.session.commit()
         return jsonify({"message": f"Student {id} deactivated successfully"}), 200
 
-# ------------------------------
 # Endpoints para Trainers
-# ------------------------------
 
 @api.route('/trainers', methods=['GET'])
 @jwt_required()
@@ -218,9 +210,7 @@ def manage_trainer(id):
         db.session.commit()
         return jsonify({"message": f"Trainer {id} deactivated successfully"}), 200
 
-# ------------------------------
 # Endpoints para Courts
-# ------------------------------
 
 @api.route('/courts', methods=['GET'])
 def list_courts():
@@ -262,9 +252,7 @@ def manage_court(id):
         db.session.commit()
         return jsonify({"message": f"Court {id} deleted successfully"}), 200
 
-# ------------------------------
 # Endpoints para Sessions
-# ------------------------------
 
 @api.route('/sessions', methods=['GET'])
 @jwt_required()
@@ -311,9 +299,7 @@ def manage_session(id):
         db.session.commit()
         return jsonify({"message": f"Session {id} deleted successfully"}), 200
 
-# ------------------------------
 # Endpoints para SessionsStudents
-# ------------------------------
 
 @api.route('/session-students', methods=['GET'])
 @jwt_required()
