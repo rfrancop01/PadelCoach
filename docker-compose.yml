@@ -16,7 +16,7 @@ services:
     build:
       context: ./server
     container_name: padelcoach_backend
-    command: python run.py
+    command: flask run --host=0.0.0.0 --port=8000
     volumes:
       - ./server:/app
     ports:

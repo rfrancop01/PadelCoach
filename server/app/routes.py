@@ -63,41 +63,6 @@ def signup():
     db.session.commit()
     return jsonify({"message": "Usuario creado exitosamente", "results": new_user.serialize()}), 201
 
-@api.route("/users-admin", methods=["POST"])
-@jwt_required(optional=True)
-def create_admin():
-    # Verificar si ya existe algún admin
-    existing_admin = db.session.execute(db.select(Users).where(Users.role == "admin")).scalar()
-    if existing_admin:
-        # Si ya hay un admin, se requiere autenticación y rol admin
-        claims = get_jwt()
-        role_from_token = claims.get("role")
-        if role_from_token != "admin":
-            return jsonify({"message": "No autorizado. Solo un admin puede crear otro admin."}), 403
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
-    name = data.get("name", "")
-    last_name = data.get("last_name", "")
-    phone = data.get("phone", "")
-    if not email or not password:
-        return jsonify({"message": "Email y password son requeridos"}), 400
-    # Verificar si el usuario ya existe
-    existing_user = db.session.execute(db.select(Users).where(Users.email == email)).scalar()
-    if existing_user:
-        return jsonify({"message": "El usuario ya existe"}), 409
-    new_admin = Users(
-        email=email,
-        name=name,
-        last_name=last_name,
-        phone=phone,
-        role="admin",  # Asignar rol admin
-        is_active=True
-    )
-    new_admin.set_password(password)
-    db.session.add(new_admin)
-    db.session.commit()
-    return jsonify({"message": "Usuario ADMIN creado exitosamente"}), 201
 
 # Endpoints para Users
 @api.route('/users', methods=['GET'])
@@ -162,11 +127,22 @@ def manage_user(id):
 
     if request.method == 'PUT':
         data = request.json
+        print(f"[DEBUG] Cuerpo del PUT: {data}")
         user.name = data.get("name", user.name)
         user.last_name = data.get("last_name", user.last_name)
         user.phone = data.get("phone", user.phone)
         if "is_active" in data and user.id != current_user_id:
             user.is_active = data["is_active"]
+        if "role" in data:
+            print(f"[DEBUG] Rol recibido en PUT: {data['role']}")
+            if claims.get("role") == "admin":
+                allowed_roles = {"admin", "trainer", "student"}
+                if data["role"] not in allowed_roles:
+                    return jsonify({"message": "Rol inválido. Debe ser uno de: admin, trainer, student"}), 400
+                user.role = data["role"]
+                print(f"[DEBUG] Rol actualizado a: {user.role}")
+            else:
+                return jsonify({"message": "Solo un admin puede cambiar el rol del usuario"}), 403
         db.session.commit()
         return jsonify({"message": f"User {id} updated successfully", "results": user.serialize()}), 200
 
@@ -291,7 +267,7 @@ def manage_court(id):
     elif request.method == 'PUT':
         data = request.json
         court.name = data.get("name", court.name)
-        court.type = data.get("court_type", court.court_type)
+        court.court_type = data.get("court_type", court.court_type)
         court.location = data.get("location", court.location)
         db.session.commit()
         return jsonify({"message": f"Court {id} updated successfully", "results": court.serialize()}), 200
