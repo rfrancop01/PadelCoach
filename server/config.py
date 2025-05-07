@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MIGRATION_DIRECTORY = 'server/migrations'
     JWT_TOKEN_LOCATION = ['headers']

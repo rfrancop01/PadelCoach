@@ -43,6 +43,7 @@ def create_app():
     return app
 
 app = create_app()
+migrate = Migrate(app, db)
 
 @app.cli.command("reset_db")
 def reset_db():

@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:14
@@ -12,6 +11,33 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./server
+    container_name: padelcoach_backend
+    command: python run.py
+    volumes:
+      - ./server:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - ./server/.env
+
+  frontend:
+    build:
+      context: ./client  
+    container_name: padelcoach_frontend
+    command: npm run dev
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 
 volumes:
   pgdata:
