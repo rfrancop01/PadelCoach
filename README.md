@@ -87,10 +87,40 @@ PadelCoach/
 |  ##Fase                  |  ##Estado       |  ##Tareas incluidas                                                                 |
 |--------------------------|----------------|--------------------------------------------------------------------------------------|
 | **1. Setup del entorno** | ✅ Completado   | Crear carpetas `client/`, `server/`, `.gitignore`, repo Git, subir a GitHub         |
-| **2. Docker + PostgreSQL** | ⏳ En progreso | Crear `docker-compose.yml`, levantar base de datos, conectar con Flask              |
-| **3. Backend Flask**     | ⏳ Pendiente    | Crear modelos, rutas, controladores, autenticación con JWT                          |
+| **2. Docker + PostgreSQL** | ✅ Completado | Crear `docker-compose.yml`, levantar base de datos, conectar con Flask              |
+| **3. Backend Flask**     | ✅ Completado    | Crear modelos, rutas, controladores, autenticación con JWT                          |
 | **4. Frontend React**    | ⏳ Pendiente    | Login, panel por rol, calendario, gestión de sesiones                               |
 | **5. Mejoras y despliegue** | ⏳ Pendiente | Mapa (OpenStreetMap), clima (opcional), despliegue en Railway / Render / Vercel     |
+| **6. Migraciones y base de datos** | ✅ Completado | Configuración de SQLAlchemy, Alembic, `flask db init/migrate/upgrade`, uso de enums personalizados |
+
+
+---
+
+## 🧪 Comandos útiles
+
+### 🔧 Entorno y Docker
+
+```bash
+docker-compose up --build       # Levantar contenedores y reconstruir si hay cambios
+docker-compose down -v          # Parar y eliminar contenedores, redes y volúmenes
+docker exec -it padelcoach_backend sh  # Acceder al contenedor backend
+```
+
+### 📦 Backend (Flask)
+
+```bash
+flask db init                   # Inicializar migraciones (solo la primera vez)
+flask db migrate -m "mensaje"  # Crear una nueva migración
+flask db upgrade                # Aplicar migraciones a la base de datos
+```
+
+### 💻 Frontend (React)
+
+```bash
+cd client
+npm install                     # Instalar dependencias
+npm run dev                     # Ejecutar frontend en modo desarrollo
+```
 
 ---
 
