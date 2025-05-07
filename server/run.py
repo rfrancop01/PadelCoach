@@ -11,6 +11,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_jwt_extended import JWTManager
 from app.models import Users, Students, Trainers, Courts, Sessions, SessionsStudents
+from flask.cli import with_appcontext
 
 class CustomUserAdmin(ModelView):
     form_excluded_columns = ('created_at', 'password_hash')
@@ -55,5 +56,27 @@ def reset_db():
     db.create_all()  # Crea las tablas nuevamente
     logging.info("Base de datos reseteada con éxito")
 
+@app.cli.command("create-admin")
+@with_appcontext
+def create_admin():
+    email = input("Email: ")
+    password = input("Password: ")
+    existing = db.session.execute(db.select(Users).where(Users.email == email)).scalar()
+    if existing:
+        print("El usuario ya existe.")
+        return
+    user = Users(
+        email=email,
+        name="Admin",
+        last_name="User",
+        phone="000000000",
+        role="admin",
+        is_active=True
+    )
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    print(f"Usuario admin creado: {email}")
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=8000, debug=True, use_reloader=True)
