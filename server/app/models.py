@@ -133,3 +133,26 @@ class SessionsStudents(db.Model):
             'session_id': self.session_id,
             'student_id': self.student_id
         }
+
+class Invitations(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    token = db.Column(db.Text, unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime)
+    used = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(20), nullable=False)  # 'student' o 'trainer'
+
+    def __repr__(self):
+        return f'<Invitation {self.id} - {self.email} - Role: {self.role}>'
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'token': self.token,
+            'created_at': self.created_at,
+            'expires_at': self.expires_at,
+            'used': self.used,
+            'role': self.role
+        }
