@@ -11,3 +11,4 @@ class Config:
     JWT_HEADER_NAME = 'Authorization'
     JWT_HEADER_TYPE = 'Bearer'
     JWT_SECRET_KEY = 'tu_clave_secreta_aqui'
+    SECRET_KEY = os.getenv("SECRET_KEY")

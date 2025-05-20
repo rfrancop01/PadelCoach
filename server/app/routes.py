@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity, create_access_token
-from .models import Users, Students, Trainers, Courts, Sessions, SessionsStudents
+import uuid
+import datetime
+from flask import current_app
+from .models import Users, Students, Trainers, Courts, Sessions, SessionsStudents, Invitations
 from . import db
+from .invitation_utils import create_invitation, send_invitation_email
 
 api = Blueprint('api', __name__)
 
@@ -37,14 +41,28 @@ def protected():
 
 @api.route("/signup", methods=["POST"])
 def signup():
+    import datetime
     data = request.json
     email = data.get("email")
     password = data.get("password")
     name = data.get("name", "")
     last_name = data.get("last_name", "")
     phone = data.get("phone", "")
+    token = data.get("token")
     if not email or not password:
         return jsonify({"message": "Email y password son requeridos"}), 400
+    # Validación de invitación y token
+    if token:
+        invitation = db.session.execute(
+            db.select(Invitations).where(Invitations.email == email, Invitations.token == token)
+        ).scalar()
+        if not invitation:
+            return jsonify({"message": "Invitación no válida o token incorrecto"}), 400
+        # Verificar que no haya expirado (48h)
+        if (datetime.datetime.utcnow() - invitation.created_at).total_seconds() > 172800:
+            return jsonify({"message": "El enlace de invitación ha expirado"}), 400
+    else:
+        return jsonify({"message": "Token de invitación requerido"}), 400
     # Verificar si el usuario ya existe
     existing_user = db.session.execute(db.select(Users).where(Users.email == email)).scalar()
     if existing_user:
@@ -61,8 +79,11 @@ def signup():
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
+    # Marcar el token como usado (eliminar la invitación)
+    if token:
+        db.session.delete(invitation)
+        db.session.commit()
     return jsonify({"message": "Usuario creado exitosamente", "results": new_user.serialize()}), 201
-
 
 # Endpoints para Users
 @api.route('/users', methods=['GET'])
@@ -361,3 +382,141 @@ def manage_session_student(id):
         db.session.delete(ss)
         db.session.commit()
         return jsonify({"message": f"SessionStudent {id} deleted successfully"}), 200
+
+
+@api.route('/invitations', methods=['POST'])
+@jwt_required()
+def send_invitations():
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    import pandas as pd
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"message": "Debe subir un archivo Excel con una columna 'email'"}), 400
+
+    try:
+        df = pd.read_excel(file, sheet_name=0)
+
+        print("[DEBUG] Columnas del archivo:", df.columns)
+
+        if 'email' not in df.columns:
+            return jsonify({"message": "El archivo debe contener una columna llamada 'email'"}), 400
+
+        emails = df['email'].dropna().tolist()
+
+        if not emails:
+            return jsonify({"message": "No se encontraron correos electrónicos válidos en el archivo"}), 400
+
+    except Exception as e:
+        return jsonify({"message": f"Error al procesar el archivo: {str(e)}"}), 400
+
+    if not emails or not isinstance(emails, list):
+        return jsonify({"message": "Debe proporcionar una lista de correos electrónicos"}), 400
+
+    invitations_sent = []
+    import traceback
+    for email in emails:
+        # Verificar si ya existe una invitación válida
+        existing_invitation = db.session.execute(
+            db.select(Invitations).where(Invitations.email == email)
+        ).scalar()
+        if existing_invitation:
+            time_diff = (datetime.datetime.utcnow() - existing_invitation.created_at).total_seconds()
+            if time_diff <= 172800:
+                invitations_sent.append({
+                    "email": email,
+                    "message": "Ya existe una invitación válida"
+                })
+                continue
+        try:
+            token = create_invitation(email, role="student")
+            if not token or not isinstance(token, str):
+                raise ValueError(f"No se generó un token válido para {email}")
+            link = f"https://padelcoach.com/register?token={token}&email={email}"
+            # Esta función no retorna ningún valor
+            send_invitation_email(email, link)
+            if not isinstance(email, str):
+                raise ValueError(f"El valor de email no es una cadena: {email}")
+
+            print(f"[DEBUG] Procesando invitación para {email} con link {link}")
+            invitations_sent.append({
+                "email": email,
+                "link": link,
+                "message": "Invitación enviada correctamente"
+            })
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            print(f"[ERROR] Fallo al procesar la invitación para {email}: {error_trace}")
+            invitations_sent.append({
+                "email": email,
+                "error": f"{str(e)}"
+            })
+
+    return jsonify({
+        "message": "Invitaciones procesadas",
+        "results": invitations_sent
+    }), 200
+
+
+# Endpoint para listar invitaciones
+@api.route('/invitations', methods=['GET'])
+@jwt_required()
+def list_invitations():
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    invitations = db.session.execute(db.select(Invitations)).scalars()
+    results = [{
+        "id": inv.id,
+        "email": inv.email,
+        "token": inv.token,
+        "created_at": inv.created_at,
+        "expires_at": inv.created_at + datetime.timedelta(hours=48)
+    } for inv in invitations]
+
+    return jsonify({
+        "message": "Lista de invitaciones",
+        "results": results
+    }), 200
+
+
+# Endpoint para reenviar invitaciones expiradas
+@api.route('/invitations/resend', methods=['POST'])
+@jwt_required()
+def resend_invitation():
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    data = request.json
+    email = data.get("email")
+    if not email:
+        return jsonify({"message": "Email es requerido"}), 400
+
+    invitation = db.session.execute(
+        db.select(Invitations).where(Invitations.email == email)
+    ).scalar()
+
+    if not invitation:
+        return jsonify({"message": "No se encontró invitación para este email"}), 404
+
+    # Check if expired
+    if (datetime.datetime.utcnow() - invitation.created_at).total_seconds() <= 172800:
+        return jsonify({"message": "La invitación aún es válida"}), 400
+
+    # Delete old and create a new one
+    db.session.delete(invitation)
+    db.session.commit()
+
+    new_token = create_invitation(email)
+    link = f"https://padelcoach.com/register?token={new_token}&email={email}"
+    send_invitation_email(email, link)
+
+    return jsonify({
+        "message": "Invitación reenviada",
+        "email": email,
+        "link": link
+    }), 200
