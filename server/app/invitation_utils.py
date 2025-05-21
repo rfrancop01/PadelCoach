@@ -20,7 +20,7 @@ def validate_invite_token(token, max_age=86400):
 def send_invite_email(to_email, invite_url):
     msg = EmailMessage()
     msg["Subject"] = "Te han invitado a PadelCoach 🎾"
-    msg["From"] = current_app.config["SMTP_USER"]
+    msg["From"] = "rfrancop01@gmail.com"
     msg["To"] = to_email
     msg.set_content(f"""
 Hola!
@@ -36,9 +36,9 @@ Saludos,
 El equipo de PadelCoach.
 """)
 
-    with smtplib.SMTP(current_app.config["SMTP_SERVER"], int(current_app.config["SMTP_PORT"])) as smtp:
+    with smtplib.SMTP(current_app.config["MAIL_SERVER"], int(current_app.config["MAIL_PORT"])) as smtp:
         smtp.starttls()
-        smtp.login(current_app.config["SMTP_USER"], current_app.config["SMTP_PASSWORD"])
+        smtp.login(current_app.config["MAIL_USERNAME"], current_app.config["MAIL_PASSWORD"])
         try:
             smtp.send_message(msg)
         except Exception as e:

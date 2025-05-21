@@ -435,11 +435,19 @@ def send_invitations():
             if not token or not isinstance(token, str):
                 raise ValueError(f"No se generó un token válido para {email}")
             link = f"https://padelcoach.com/register?token={token}&email={email}"
-            # Esta función no retorna ningún valor
-            send_invitation_email(email, link)
+            # Enviar correo con try/except para registrar el estado del envío
+            try:
+                send_invitation_email(email, link)
+                print(f"[EMAIL ENVIADO] Invitación enviada a {email}")
+            except Exception as e:
+                print(f"[ERROR DE EMAIL] No se pudo enviar el correo a {email}: {str(e)}")
+                invitations_sent.append({
+                    "email": email,
+                    "error": f"Fallo al enviar correo: {str(e)}"
+                })
+                continue
             if not isinstance(email, str):
                 raise ValueError(f"El valor de email no es una cadena: {email}")
-
             print(f"[DEBUG] Procesando invitación para {email} con link {link}")
             invitations_sent.append({
                 "email": email,

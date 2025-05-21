@@ -45,7 +45,7 @@ class Students(db.Model):
     level = db.Column(db.Enum('Primera', 'Segunda', 'Tercera', 'Cuarta', 'Iniciación', 'Competición', name='level_enum'), nullable=False)  # Nivel del estudiante
     age = db.Column(db.Integer, nullable=False)
     student_associations = db.relationship('SessionsStudents', back_populates='student', cascade="all, delete-orphan")
-    sessions = db.relationship('Sessions', secondary='sessions_students', back_populates='students')
+    sessions = db.relationship('Sessions', secondary='sessions_students', back_populates='students', overlaps="student_associations")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user_to = db.relationship('Users', foreign_keys=[user_id], backref='student_profile')
 
@@ -101,7 +101,7 @@ class Sessions(db.Model):
     notes = db.Column(db.String(255), nullable=True)  # Notas del entrenador sobre la sesión
     court_id = db.Column(db.Integer, db.ForeignKey('courts.id'), nullable=False)
     session_associations = db.relationship('SessionsStudents', back_populates='session', cascade="all, delete-orphan")
-    students = db.relationship('Students', secondary='sessions_students', back_populates='sessions')
+    students = db.relationship('Students', secondary='sessions_students', back_populates='sessions', overlaps="session_associations")
 
     def __repr__(self):
         return f'<Session {self.id} {self.date} {self.time}>'
@@ -121,8 +121,8 @@ class SessionsStudents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    session = db.relationship('Sessions', back_populates='session_associations')
-    student = db.relationship('Students', back_populates='student_associations')
+    session = db.relationship('Sessions', back_populates='session_associations', overlaps="students")
+    student = db.relationship('Students', back_populates='student_associations', overlaps="sessions")
 
     def __repr__(self):
         return f'<SessionStudent {self.id} session_id={self.session_id} student_id={self.student_id}>'

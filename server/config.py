@@ -12,3 +12,9 @@ class Config:
     JWT_HEADER_TYPE = 'Bearer'
     JWT_SECRET_KEY = 'tu_clave_secreta_aqui'
     SECRET_KEY = os.getenv("SECRET_KEY")
+    MAIL_SERVER = os.getenv("SMTP_SERVER")
+    MAIL_PORT = int(os.getenv("SMTP_PORT"))
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
