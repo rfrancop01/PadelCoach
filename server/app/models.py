@@ -121,8 +121,8 @@ class SessionsStudents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    session = db.relationship('Sessions', back_populates='session_associations', overlaps="students")
-    student = db.relationship('Students', back_populates='student_associations', overlaps="sessions")
+    session = db.relationship('Sessions', back_populates='session_associations', overlaps="students,sessions")
+    student = db.relationship('Students', back_populates='student_associations', overlaps="sessions,student_associations")
 
     def __repr__(self):
         return f'<SessionStudent {self.id} session_id={self.session_id} student_id={self.student_id}>'

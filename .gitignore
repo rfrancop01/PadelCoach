@@ -1,8 +1,28 @@
-client/node_modules
-client/dist
-__pycache__/
-*.pyc
+# Entornos virtuales
+.venv/
 env/
 venv/
+
+# Archivos de entorno y secretos
 .env
+server/.env
+.env.*
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+
+# Archivos de sistema
 .DS_Store
+
+# Node.js
+client/node_modules/
+client/dist/
+client/build/
+
+# Archivos de logs y bases de datos locales
+*.log
+*.sqlite3
+
+# Archivos de configuración locales
+docker-compose.override.yml
