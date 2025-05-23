@@ -5,6 +5,7 @@ from flask_restx import Namespace, Resource, fields
 # --- Swagger UI Security Definition for Bearer Auth ---
 from flask_restx import Api
 from .models import Users, Students, Trainers, Courts, Sessions, SessionsStudents, Invitations, PasswordResetToken
+from .models import TrainingPlan
 from . import db
 from .invitation_utils import create_invitation, send_invitation_email
 
@@ -203,7 +204,10 @@ class UserList(Resource):
         if claims.get("role") != "admin":
             return {"message": "Usuario no autorizado"}, 403
         users = db.session.execute(db.select(Users)).scalars()
-        return [user.serialize() for user in users], 200
+        return {
+            "message": "Lista de usuarios",
+            "results": [user.serialize() for user in users]
+        }, 200
 
     @users_ns.doc(security="Bearer", description="Create a user (admin only)")
     @jwt_required()
@@ -301,7 +305,8 @@ student_model = students_ns.model('Student', {
     'level': fields.String(description='Level'),
     'age': fields.Integer(description='Age'),
     'user_id': fields.Integer(description='User ID'),
-    'is_active': fields.Boolean(description='Active')
+    'is_active': fields.Boolean(description='Active'),
+    'user': fields.Nested(user_model, description='Associated user')
 })
 
 student_input_model = students_ns.model('StudentInput', {
@@ -318,7 +323,19 @@ class StudentList(Resource):
     @students_ns.marshal_list_with(student_model)
     def get(self):
         students = db.session.execute(db.select(Students)).scalars()
-        return [student.serialize() for student in students], 200
+        result = []
+        for student in students:
+            data = student.serialize()
+            data.pop('user_id', None)
+            data.pop('is_active', None)
+            # include nested user information
+            user = db.session.get(Users, student.user_id)
+            data['user'] = user.serialize() if user else None
+            result.append(data)
+        return {
+            "message": "Lista de estudiantes",
+            "results": result
+        }, 200
 
     @students_ns.doc(security="Bearer")
     @jwt_required()
@@ -346,7 +363,13 @@ class StudentDetail(Resource):
         student = db.session.get(Students, id)
         if not student:
             students_ns.abort(404, "Student not found")
-        return student.serialize(), 200
+        data = student.serialize()
+        data.pop('user_id', None)
+        data.pop('is_active', None)
+        return {
+            "message": f"Student {id} found",
+            "results": data
+        }, 200
 
     @students_ns.doc(security="Bearer")
     @jwt_required()
@@ -382,7 +405,16 @@ class TrainerList(Resource):
     @jwt_required()
     def get(self):
         trainers = db.session.execute(db.select(Trainers)).scalars()
-        result = [trainer.serialize() for trainer in trainers]
+        result = []
+        for trainer in trainers:
+            data = trainer.serialize()
+            # include nested user information
+            user = db.session.get(Users, trainer.user_id)
+            data['user'] = user.serialize() if user else None
+            # remove raw user_id and is_active if present
+            data.pop('user_id', None)
+            data.pop('is_active', None)
+            result.append(data)
         return {"message": "Lista de entrenadores", "results": result}, 200
 
     @trainers_ns.doc(security="Bearer")
@@ -460,7 +492,19 @@ class CourtDetail(Resource):
         court = db.session.get(Courts, id)
         if not court:
             return {"message": "Court not found"}, 404
-        return {"message": f"Court {id} found", "results": court.serialize()}, 200
+        sessions = db.session.execute(db.select(Sessions).where(Sessions.court_id == id)).scalars()
+        sessions_data = []
+        for s in sessions:
+            d = s.serialize()
+            d.pop('court_id', None)
+            d.pop('notes', None)
+            sessions_data.append(d)
+        data = court.serialize()
+        data['sessions'] = sessions_data
+        return {
+            "message": f"Court {id} found",
+            "results": data
+        }, 200
 
     @courts_ns.doc(security="Bearer")
     @jwt_required()
@@ -494,7 +538,31 @@ class SessionList(Resource):
     @jwt_required()
     def get(self):
         sessions = db.session.execute(db.select(Sessions)).scalars()
-        result = [session.serialize() for session in sessions]
+        result = []
+        for session in sessions:
+            data = session.serialize()
+            # nested trainer
+            trainer = db.session.get(Users, session.trainer_id)
+            data['trainer'] = trainer.serialize() if trainer else None
+            # nested court
+            court = db.session.get(Courts, session.court_id)
+            data['court'] = court.serialize() if court else None
+            # nested students
+            associations = db.session.execute(
+                db.select(SessionsStudents).where(SessionsStudents.session_id == session.id)
+            ).scalars()
+            students_list = []
+            for assoc in associations:
+                student = db.session.get(Students, assoc.student_id)
+                if student:
+                    user = db.session.get(Users, student.user_id)
+                    student_data = student.serialize()
+                    student_data['user'] = user.serialize() if user else None
+                    student_data.pop('user_id', None)
+                    student_data.pop('is_active', None)
+                    students_list.append(student_data)
+            data['students'] = students_list
+            result.append(data)
         return {"message": "Lista de sesiones", "results": result}, 200
 
     @sessions_ns.doc(security="Bearer")
@@ -521,7 +589,26 @@ class SessionDetail(Resource):
         session_obj = db.session.get(Sessions, id)
         if not session_obj:
             return {"message": "Session not found"}, 404
-        return {"message": f"Session {id} found", "results": session_obj.serialize()}, 200
+        data = session_obj.serialize()
+        trainer = db.session.get(Users, session_obj.trainer_id)
+        data['trainer'] = trainer.serialize() if trainer else None
+        court = db.session.get(Courts, session_obj.court_id)
+        data['court'] = court.serialize() if court else None
+        associations = db.session.execute(
+            db.select(SessionsStudents).where(SessionsStudents.session_id == id)
+        ).scalars()
+        students_list = []
+        for assoc in associations:
+            student = db.session.get(Students, assoc.student_id)
+            if student:
+                user = db.session.get(Users, student.user_id)
+                student_data = student.serialize()
+                student_data['user'] = user.serialize() if user else None
+                student_data.pop('user_id', None)
+                student_data.pop('is_active', None)
+                students_list.append(student_data)
+        data['students'] = students_list
+        return {"message": f"Session {id} found", "results": data}, 200
 
     @sessions_ns.doc(security="Bearer")
     @jwt_required()
@@ -716,3 +803,93 @@ class InvitationResend(Resource):
             "email": email,
             "link": link
         }, 200
+
+# TrainingPlans Namespace and Models
+trainingplans_ns = Namespace('training_plans', description='Training Plan endpoints')
+
+trainingplan_model = trainingplans_ns.model('TrainingPlan', {
+    'id': fields.Integer(description='Training Plan ID'),
+    'title': fields.String(description='Título'),
+    'description': fields.String(description='Descripción'),
+    'file_url': fields.String(description='URL del documento'),
+    'trainer_id': fields.Integer(description='ID de usuario del entrenador'),
+    'created_at': fields.DateTime(description='Fecha de creación')
+})
+
+trainingplan_input_model = trainingplans_ns.model('TrainingPlanInput', {
+    'title': fields.String(required=True, description='Título'),
+    'description': fields.String(required=True, description='Descripción'),
+    'file_url': fields.String(required=True, description='URL del documento'),
+    'trainer_id': fields.Integer(required=True, description='ID de usuario del entrenador')
+})
+
+@trainingplans_ns.route('/')
+class TrainingPlanList(Resource):
+    @trainingplans_ns.doc(security="Bearer")
+    @jwt_required()
+    @trainingplans_ns.marshal_list_with(trainingplan_model)
+    def get(self):
+        plans = db.session.execute(db.select(TrainingPlan)).scalars()
+        return {"message": "Lista de planes de entrenamiento", "results": [p.serialize() for p in plans]}, 200
+
+    @trainingplans_ns.doc(security="Bearer")
+    @jwt_required()
+    @trainingplans_ns.expect(trainingplan_input_model)
+    @trainingplans_ns.marshal_with(trainingplan_model, code=201)
+    def post(self):
+        claims = get_jwt()
+        if claims.get("role") != "admin":
+            return {"message": "Usuario no autorizado"}, 403
+        data = request.json
+        new_plan = TrainingPlan(
+            title=data['title'],
+            description=data['description'],
+            file_url=data['file_url'],
+            trainer_id=data['trainer_id']
+        )
+        db.session.add(new_plan)
+        db.session.commit()
+        return new_plan.serialize(), 201
+
+@trainingplans_ns.route('/<int:id>')
+class TrainingPlanDetail(Resource):
+    @trainingplans_ns.doc(security="Bearer")
+    @jwt_required()
+    @trainingplans_ns.marshal_with(trainingplan_model)
+    def get(self, id):
+        plan = db.session.get(TrainingPlan, id)
+        if not plan:
+            trainingplans_ns.abort(404, "Training Plan no encontrado")
+        return plan.serialize(), 200
+
+    @trainingplans_ns.doc(security="Bearer")
+    @jwt_required()
+    @trainingplans_ns.expect(trainingplan_input_model)
+    @trainingplans_ns.marshal_with(trainingplan_model)
+    def put(self, id):
+        claims = get_jwt()
+        if claims.get("role") != "admin":
+            return {"message": "Usuario no autorizado"}, 403
+        plan = db.session.get(TrainingPlan, id)
+        if not plan:
+            trainingplans_ns.abort(404, "Training Plan no encontrado")
+        data = request.json
+        plan.title = data.get('title', plan.title)
+        plan.description = data.get('description', plan.description)
+        plan.file_url = data.get('file_url', plan.file_url)
+        plan.trainer_id = data.get('trainer_id', plan.trainer_id)
+        db.session.commit()
+        return plan.serialize(), 200
+
+    @trainingplans_ns.doc(security="Bearer")
+    @jwt_required()
+    def delete(self, id):
+        claims = get_jwt()
+        if claims.get("role") != "admin":
+            return {"message": "Usuario no autorizado"}, 403
+        plan = db.session.get(TrainingPlan, id)
+        if not plan:
+            trainingplans_ns.abort(404, "Training Plan no encontrado")
+        db.session.delete(plan)
+        db.session.commit()
+        return {"message": f"Training Plan {id} eliminado correctamente"}, 200

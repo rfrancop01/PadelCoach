@@ -48,7 +48,8 @@ def create_app():
         courts_ns,
         sessions_ns,
         ss_ns,
-        invitations_ns
+        invitations_ns,
+        trainingplans_ns
     )
 
     api.add_namespace(auth_ns, path='/auth')
@@ -59,6 +60,7 @@ def create_app():
     api.add_namespace(sessions_ns, path='/sessions')
     api.add_namespace(ss_ns, path='/session-students')
     api.add_namespace(invitations_ns, path='/invitations')
+    api.add_namespace(trainingplans_ns, path='/training_plans')
 
     app.register_blueprint(blueprint)
     return app

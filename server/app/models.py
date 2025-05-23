@@ -2,7 +2,7 @@ from datetime import datetime
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Enum
+from sqlalchemy import Enum, func
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -90,6 +90,12 @@ class Trainers(db.Model):
             'id': self.id,
             'user': self.user_to.serialize() if self.user_to else None
         }
+
+    training_plans = db.relationship(
+        'TrainingPlan',
+        back_populates='trainer',
+        cascade='all, delete-orphan'
+    )
 
 class Courts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -190,6 +196,38 @@ class Invitations(db.Model):
             'used': self.used,
             'role': self.role
         }
+class TrainingPlan(db.Model):
+    __tablename__ = 'training_plans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    trainer_id = db.Column(db.Integer, db.ForeignKey('trainers.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    file_url = db.Column(db.String(255), nullable=False)  # URL to the uploaded plan file
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        server_default=func.now()
+    )
+
+    trainer = db.relationship(
+        'Trainers',
+        back_populates='training_plans'
+    )
+
+    def __repr__(self):
+        return f'<TrainingPlan {self.id} "{self.title}">'
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'trainer_id': self.trainer_id,
+            'title': self.title,
+            'description': self.description,
+            'file_url': self.file_url,
+            'created_at': self.created_at.strftime("%d/%m/%Y %H:%M") if self.created_at else None
+        }
+
 class PasswordResetToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
