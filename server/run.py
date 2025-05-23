@@ -1,17 +1,28 @@
-from flask import Flask, send_from_directory
+import warnings
+from sqlalchemy.exc import SAWarning
+
+# Always show SQLAlchemy warnings
+warnings.simplefilter('always', SAWarning)
+
+import os
 import logging
 import click
-import os
 
-from config import Config
-from app import db
+from flask import Flask, send_from_directory
+from flask.cli import with_appcontext
 from flask_migrate import Migrate
-
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_jwt_extended import JWTManager
+from flask_restx import Api
+
+from config import Config
+from app import db
 from app.models import Users, Students, Trainers, Courts, Sessions, SessionsStudents
-from flask.cli import with_appcontext
+from app.routes import (
+    auth_ns, users_ns, students_ns, trainers_ns, courts_ns,
+    sessions_ns, ss_ns, invitations_ns
+)
 
 class CustomUserAdmin(ModelView):
     form_excluded_columns = ('created_at', 'password_hash')
@@ -25,8 +36,15 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db, directory=os.path.join(app.root_path, 'migrations'))
 
-    from app.routes import api
-    app.register_blueprint(api, url_prefix='/api')
+    api = Api(app, version='1.0', title='PadelCoach API', doc='/api/docs')
+    api.add_namespace(auth_ns, path='/auth')
+    api.add_namespace(users_ns, path='/users')
+    api.add_namespace(students_ns, path='/students')
+    api.add_namespace(trainers_ns, path='/trainers')
+    api.add_namespace(courts_ns, path='/courts')
+    api.add_namespace(sessions_ns, path='/sessions')
+    api.add_namespace(ss_ns, path='/session-students')
+    api.add_namespace(invitations_ns, path='/invitations')
 
     admin = Admin(app, name='Admin Panel', url='/admin', template_mode='bootstrap3')
     admin.add_view(CustomUserAdmin(Users, db.session))
@@ -44,7 +62,6 @@ def create_app():
     return app
 
 app = create_app()
-migrate = Migrate(app, db)
 
 @app.cli.command("reset_db")
 def reset_db():

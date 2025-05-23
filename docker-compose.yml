@@ -14,6 +14,11 @@ services:
   backend:
     build:
       context: ./server
+    working_dir: /app
+    environment:
+      - FLASK_APP=app:create_app
+      - FLASK_ENV=development
+      - PYTHONWARNINGS=default
     ports:
       - "8000:8000"
     volumes:
