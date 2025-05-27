@@ -1,6 +1,7 @@
 import { api } from './index'  
 
 // Courts endpoints
+export const getCourtById = id => api.get(`/courts/${id}`);
 export const getCourts = () => api.get('/courts')
 export const getCourt = id => api.get(`/courts/${id}`)
 export const createCourt = data => api.post('/courts', data)

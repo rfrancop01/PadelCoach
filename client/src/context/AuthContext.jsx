@@ -6,9 +6,11 @@ import {
   resetPassword
 } from '../api/auth'
 
+// Context
 export const AuthContext = createContext()
 
-export default function AuthProvider({ children }) {
+// Provider como named export
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
