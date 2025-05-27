@@ -1,4 +1,4 @@
-import api from './index'
+import { api } from './index'  
 
 // Trainers endpoints
 export const getTrainers = () => api.get('/trainers')

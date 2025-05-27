@@ -1,4 +1,4 @@
-import api from './index'
+import { api } from './index'  
 
 // Courts endpoints
 export const getCourts = () => api.get('/courts')

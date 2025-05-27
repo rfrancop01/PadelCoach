@@ -29,7 +29,10 @@ export default function AuthProvider({ children }) {
   }
 
   const signup = async (data) => {
-    await apiSignup(data)
+    const { access_token, results } = await apiSignup(data)
+    localStorage.setItem('token', access_token)
+    localStorage.setItem('user', JSON.stringify(results))
+    setUser(results)
   }
 
   const logout = () => {

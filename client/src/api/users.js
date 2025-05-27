@@ -1,4 +1,4 @@
-import api from './index'
+import { api } from './index'  
 
 // Users endpoints
 export const getUsers    = ()      => api.get('/users')

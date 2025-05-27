@@ -1,6 +1,14 @@
 FROM node:18.20.2-alpine
+
 WORKDIR /app
-COPY . .
+
+COPY package*.json ./
 RUN npm install
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host"]
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "preview"]

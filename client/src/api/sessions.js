@@ -1,6 +1,4 @@
-
-
-import api from './index'
+import { api } from './index'  
 
 // Sessions endpoints
 export const getSessions = () => api.get('/sessions')

@@ -1,4 +1,4 @@
-import api from './index'
+import { api } from './index'  
 
 export const getInvitations = () => api.get('/invitations')
 export const createInvitation = data => api.post('/invitations', data)

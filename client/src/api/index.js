@@ -1,15 +1,15 @@
 import axios from 'axios'
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
   headers: {
     Accept: 'application/json'
   }
 })
 
-// Interceptor para añadir el token si existe
+// Interceptor para añadir el JWT de acceso (access_token) si existe
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -27,4 +27,11 @@ api.interceptors.response.use(
   }
 )
 
-export default api
+
+export { login, signup, requestPasswordReset, resetPassword } from './auth'
+export * from './courts'
+export * from './sessions'
+export * from './students'
+export * from './users'
+export * from './trainers'
+export * from './invitations'
