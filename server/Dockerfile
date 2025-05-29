@@ -24,4 +24,9 @@ RUN pip install --upgrade pip \
 
 EXPOSE 8000
 
-CMD ["python", "run.py"]
+ENV FLASK_APP=run.py
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["/app/entrypoint.sh"]

@@ -54,13 +54,13 @@ class Students(db.Model):
         'SessionsStudents',
         back_populates='student',
         cascade="all, delete-orphan",
-        overlaps="sessions,student_associations"
+        overlaps="students,sessions,student_associations,session_associations"
     )
     sessions = db.relationship(
         'Sessions',
         secondary='sessions_students',
         back_populates='students',
-        overlaps="session_associations,students"
+        overlaps="students,sessions,session_associations,student_associations"
     )
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user_to = db.relationship('Users', foreign_keys=[user_id], backref='student_profile')
@@ -126,13 +126,13 @@ class Sessions(db.Model):
         'SessionsStudents',
         back_populates='session',
         cascade="all, delete-orphan",
-        overlaps="students,session_associations"
+        overlaps="sessions,students,session_associations,student_associations"
     )
     students = db.relationship(
         'Students',
         secondary='sessions_students',
         back_populates='sessions',
-        overlaps="session_associations,student_associations"
+        overlaps="sessions,students,session_associations,student_associations"
     )
 
     def __repr__(self):
@@ -156,12 +156,12 @@ class SessionsStudents(db.Model):
     session = db.relationship(
         'Sessions',
         back_populates='session_associations',
-        overlaps="students,session_associations"
+        overlaps="sessions,students,session_associations,student_associations"
     )
     student = db.relationship(
         'Students',
         back_populates='student_associations',
-        overlaps="sessions,student_associations"
+        overlaps="students,sessions,student_associations,session_associations"
     )
 
     def __repr__(self):
