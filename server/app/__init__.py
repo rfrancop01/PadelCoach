@@ -26,14 +26,14 @@ def create_app():
     from .routes.invitation_routes import invitation_routes
     from .routes.trainingplan_routes import trainingplan_routes
 
-    app.register_blueprint(auth_routes)
-    app.register_blueprint(user_routes)
-    app.register_blueprint(student_routes)
-    app.register_blueprint(trainer_routes)
-    app.register_blueprint(court_routes)
-    app.register_blueprint(session_routes)
-    app.register_blueprint(session_student_routes)
-    app.register_blueprint(invitation_routes)
-    app.register_blueprint(trainingplan_routes)
+    app.register_blueprint(auth_routes, url_prefix='/api/auth')
+    app.register_blueprint(user_routes, url_prefix='/api/users')
+    app.register_blueprint(student_routes, url_prefix='/api/students')
+    app.register_blueprint(trainer_routes, url_prefix='/api/trainers')
+    app.register_blueprint(court_routes, url_prefix='/api/courts')
+    app.register_blueprint(session_routes, url_prefix='/api/sessions')
+    app.register_blueprint(session_student_routes, url_prefix='/api/session_students')
+    app.register_blueprint(invitation_routes, url_prefix='/api/invitations')
+    app.register_blueprint(trainingplan_routes, url_prefix='/api/trainingplans')
 
     return app

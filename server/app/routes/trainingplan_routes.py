@@ -7,7 +7,7 @@ from .. import db
 
 trainingplan_routes = Blueprint('trainingplan_routes', __name__)
 
-@trainingplan_routes.route('/api/trainingplans', methods=['GET'])
+@trainingplan_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_trainingplans():
     claims = get_jwt()
@@ -20,7 +20,7 @@ def list_trainingplans():
         "results": [p.serialize() for p in plans]
     }), 200
 
-@trainingplan_routes.route('/api/trainingplans', methods=['POST'])
+@trainingplan_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_trainingplan():
     claims = get_jwt()
@@ -37,7 +37,7 @@ def create_trainingplan():
     db.session.commit()
     return jsonify(new_plan.serialize()), 201
 
-@trainingplan_routes.route('/api/trainingplans/<int:id>', methods=['GET'])
+@trainingplan_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_trainingplan(id):
     claims = get_jwt()
@@ -53,7 +53,7 @@ def get_trainingplan(id):
 
     return jsonify(plan.serialize()), 200
 
-@trainingplan_routes.route('/api/trainingplans/<int:id>', methods=['PUT'])
+@trainingplan_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_trainingplan(id):
     claims = get_jwt()
@@ -70,7 +70,7 @@ def update_trainingplan(id):
     db.session.commit()
     return jsonify(plan.serialize()), 200
 
-@trainingplan_routes.route('/api/trainingplans/<int:id>', methods=['DELETE'])
+@trainingplan_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_trainingplan(id):
     claims = get_jwt()

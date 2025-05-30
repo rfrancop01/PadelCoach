@@ -1,5 +1,3 @@
-
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt, get_jwt_identity
@@ -8,7 +6,7 @@ from .. import db
 
 student_routes = Blueprint('student_routes', __name__)
 
-@student_routes.route('/api/students', methods=['GET'])
+@student_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_students():
     claims = get_jwt()
@@ -25,7 +23,7 @@ def list_students():
         result.append(data)
     return jsonify({"message": "Lista de estudiantes", "results": result}), 200
 
-@student_routes.route('/api/students', methods=['POST'])
+@student_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_student():
     claims = get_jwt()
@@ -42,7 +40,7 @@ def create_student():
     db.session.commit()
     return jsonify({"message": "Student created successfully", "results": new_student.serialize()}), 201
 
-@student_routes.route('/api/students/<int:id>', methods=['GET'])
+@student_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_student(id):
     claims = get_jwt()
@@ -58,7 +56,7 @@ def get_student(id):
     data.pop('is_active', None)
     return jsonify({"message": f"Student {id} found", "results": data}), 200
 
-@student_routes.route('/api/students/<int:id>', methods=['PUT'])
+@student_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_student(id):
     claims = get_jwt()
@@ -77,7 +75,7 @@ def update_student(id):
     db.session.commit()
     return jsonify({"message": f"Student {id} updated successfully", "results": student.serialize()}), 200
 
-@student_routes.route('/api/students/<int:id>', methods=['DELETE'])
+@student_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_student(id):
     claims = get_jwt()

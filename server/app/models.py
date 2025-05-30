@@ -20,6 +20,7 @@ class Users(db.Model):
     )
     is_active = db.Column(db.Boolean, default=True)  # Estado del usuario: activo o inactivo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    age = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return f'<User: {self.id} - {self.email} - Role: {self.role}>'
@@ -35,6 +36,7 @@ class Users(db.Model):
             'role': self.role,
             'is_active': self.is_active,
             'created_at': self.created_at.strftime("%d/%m/%Y %H:%M") if self.created_at else None,
+            'age': self.age
         }
 
     def set_password(self, password):
@@ -49,7 +51,6 @@ class Users(db.Model):
 class Students(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     level = db.Column(db.Enum('Primera', 'Segunda', 'Tercera', 'Cuarta', 'Iniciación', 'Competición', name='level_enum'), nullable=False)  # Nivel del estudiante
-    age = db.Column(db.Integer, nullable=False)
     student_associations = db.relationship(
         'SessionsStudents',
         back_populates='student',
@@ -72,7 +73,6 @@ class Students(db.Model):
         return {
             'id': self.id,
             'level': self.level,
-            'age': self.age,
             'user': self.user_to.serialize() if self.user_to else None
         }
 
@@ -182,6 +182,7 @@ class Invitations(db.Model):
     expires_at = db.Column(db.DateTime)
     used = db.Column(db.Boolean, default=False)
     role = db.Column(db.String(20), nullable=False)  # 'student' o 'trainer'
+    level = db.Column(db.String(50), nullable=True)
 
     def __repr__(self):
         return f'<Invitation {self.id} - {self.email} - Role: {self.role}>'
@@ -194,7 +195,8 @@ class Invitations(db.Model):
             'created_at': self.created_at.strftime("%d/%m/%Y %H:%M") if self.created_at else None,
             'expires_at': self.expires_at.strftime("%d/%m/%Y %H:%M") if self.expires_at else None,
             'used': self.used,
-            'role': self.role
+            'role': self.role,
+            'level': self.level
         }
 class TrainingPlan(db.Model):
     __tablename__ = 'training_plans'

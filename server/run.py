@@ -11,43 +11,12 @@ import click
 from flask import Flask, send_from_directory
 from flask.cli import with_appcontext
 from flask_migrate import Migrate
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS  # <-- Importa flask_cors
 
 from config import Config
-from app import db
+from app import db, create_app
 from app.models import Users, Students, Trainers, Courts, Sessions, SessionsStudents
-
-class CustomUserAdmin(ModelView):
-    form_excluded_columns = ('created_at', 'password_hash')
-
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    jwt = JWTManager(app)
-    logging.basicConfig(level=logging.INFO)
-
-    db.init_app(app)
-    migrate = Migrate(app, db, directory=os.path.join(app.root_path, 'migrations'))
-
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-    admin = Admin(app, name='Admin Panel', url='/admin', template_mode='bootstrap3')
-    admin.add_view(CustomUserAdmin(Users, db.session))
-    admin.add_view(ModelView(Students, db.session))
-    admin.add_view(ModelView(Trainers, db.session))
-    admin.add_view(ModelView(Courts, db.session))
-    admin.add_view(ModelView(Sessions, db.session))
-    admin.add_view(ModelView(SessionsStudents, db.session))
-
-    @app.route('/favicon.ico')
-    def favicon():
-        return send_from_directory(os.path.join(app.root_path, 'static'),
-                                   'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-    return app
 
 app = create_app()
 

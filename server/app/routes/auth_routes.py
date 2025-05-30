@@ -7,7 +7,7 @@ from ..invitation_utils import send_invitation_email, create_invitation
 
 auth_routes = Blueprint('auth_routes', __name__)
 
-@auth_routes.route('/api/login', methods=['POST'])
+@auth_routes.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get("email")
@@ -24,7 +24,7 @@ def login():
         "results": user.serialize()
     }), 200
 
-@auth_routes.route('/api/protected', methods=['GET'])
+@auth_routes.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
@@ -35,37 +35,35 @@ def protected():
         "role": claims.get("role")
     }), 200
 
-@auth_routes.route('/api/signup', methods=['POST'])
-@jwt_required()
+@auth_routes.route('/signup', methods=['POST'])
 def signup():
-    claims = get_jwt()
-    if claims.get("role") != "admin":
-        return jsonify({"message": "Usuario no autorizado"}), 403
-
     data = request.json
-    email = data.get("email")
+    token = data.get("token")
     password = data.get("password")
     name = data.get("name", "")
     last_name = data.get("last_name", "")
     phone = data.get("phone", "")
-    token = data.get("token")
     role = data.get("role", "student")
     allowed_roles = {"admin", "trainer", "student"}
 
+    if not token or not password:
+        return jsonify({"message": "Token y password son requeridos"}), 400
+
+    invitation = db.session.execute(
+        db.select(Invitations).where(Invitations.token == token)
+    ).scalar()
+
+    if not invitation:
+        return jsonify({"message": "Invitación no válida o token incorrecto"}), 400
+    if (datetime.datetime.utcnow() - invitation.created_at).total_seconds() > 172800:
+        return jsonify({"message": "El enlace de invitación ha expirado"}), 400
+    if invitation.used:
+        return jsonify({"message": "La invitación ya ha sido utilizada"}), 400
+
+    email = invitation.email
+
     if role not in allowed_roles:
         return jsonify({"message": "Rol inválido. Debe ser uno de: admin, trainer, student"}), 400
-    if not email or not password:
-        return jsonify({"message": "Email y password son requeridos"}), 400
-    if token:
-        invitation = db.session.execute(
-            db.select(Invitations).where(Invitations.email == email, Invitations.token == token)
-        ).scalar()
-        if not invitation:
-            return jsonify({"message": "Invitación no válida o token incorrecto"}), 400
-        if (datetime.datetime.utcnow() - invitation.created_at).total_seconds() > 172800:
-            return jsonify({"message": "El enlace de invitación ha expirado"}), 400
-    else:
-        return jsonify({"message": "Token de invitación requerido"}), 400
 
     existing_user = db.session.execute(db.select(Users).where(Users.email == email)).scalar()
     if existing_user:
@@ -81,14 +79,20 @@ def signup():
     )
     new_user.set_password(password)
     db.session.add(new_user)
+    db.session.commit() 
+
+    if role == "student":
+        from ..models import Students
+        if invitation.level:
+            new_student = Students(user_id=new_user.id, level=invitation.level)
+            db.session.add(new_student)
+
+    invitation.used = True
     db.session.commit()
-    if token:
-        db.session.delete(invitation)
-        db.session.commit()
 
     return jsonify({"message": "Usuario creado exitosamente", "results": new_user.serialize()}), 201
 
-@auth_routes.route('/api/request-password-reset', methods=['POST'])
+@auth_routes.route('/request-password-reset', methods=['POST'])
 def request_password_reset():
     data = request.json
     email = data.get('email')
@@ -114,7 +118,7 @@ def request_password_reset():
 
     return jsonify({"message": "Correo de restablecimiento enviado"}), 200
 
-@auth_routes.route('/api/reset-password', methods=['POST'])
+@auth_routes.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.json
     token = data.get("token")

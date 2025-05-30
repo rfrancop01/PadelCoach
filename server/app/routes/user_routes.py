@@ -7,7 +7,7 @@ from .. import db
 
 user_routes = Blueprint('user_routes', __name__)
 
-@user_routes.route('/api/users', methods=['GET'])
+@user_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_users():
     claims = get_jwt()
@@ -19,7 +19,7 @@ def list_users():
         "results": [user.serialize() for user in users]
     }), 200
 
-@user_routes.route('/api/users', methods=['POST'])
+@user_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_user():
     claims = get_jwt()
@@ -53,7 +53,7 @@ def create_user():
     db.session.commit()
     return jsonify({"message": "Usuario creado exitosamente", "results": new_user.serialize()}), 201
 
-@user_routes.route('/api/users/<int:id>', methods=['GET'])
+@user_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_user(id):
     claims = get_jwt()
@@ -65,7 +65,7 @@ def get_user(id):
         return jsonify({"message": "Unauthorized access"}), 403
     return jsonify({"message": f"User {id} found", "results": user.serialize()}), 200
 
-@user_routes.route('/api/users/<int:id>', methods=['PUT'])
+@user_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_user(id):
     claims = get_jwt()
@@ -89,7 +89,7 @@ def update_user(id):
     db.session.commit()
     return jsonify({"message": f"User {id} updated successfully", "results": user.serialize()}), 200
 
-@user_routes.route('/api/users/<int:id>', methods=['DELETE'])
+@user_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(id):
     claims = get_jwt()

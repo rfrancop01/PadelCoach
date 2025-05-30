@@ -5,7 +5,7 @@ from .. import db
 
 session_student_routes = Blueprint('session_student_routes', __name__)
 
-@session_student_routes.route('/api/session-students', methods=['GET'])
+@session_student_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_session_students():
     claims = get_jwt()
@@ -25,7 +25,7 @@ def list_session_students():
     result = [ss.serialize() for ss in ss_records]
     return jsonify({"message": "Lista de sesiones-estudiantes", "results": result}), 200
 
-@session_student_routes.route('/api/session-students', methods=['POST'])
+@session_student_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_session_student():
     data = request.json
@@ -38,7 +38,7 @@ def create_session_student():
     db.session.commit()
     return jsonify({"message": "SessionStudent created successfully", "results": new_ss.serialize()}), 201
 
-@session_student_routes.route('/api/session-students/<int:id>', methods=['GET'])
+@session_student_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_session_student(id):
     ss = db.session.get(SessionsStudents, id)
@@ -52,7 +52,7 @@ def get_session_student(id):
         return jsonify({"message": "No autorizado para ver esta relación"}), 403
     return jsonify({"message": f"SessionStudent {id} found", "results": ss.serialize()}), 200
 
-@session_student_routes.route('/api/session-students/<int:id>', methods=['PUT'])
+@session_student_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_session_student(id):
     ss = db.session.get(SessionsStudents, id)
@@ -70,7 +70,7 @@ def update_session_student(id):
     db.session.commit()
     return jsonify({"message": f"SessionStudent {id} updated successfully", "results": ss.serialize()}), 200
 
-@session_student_routes.route('/api/session-students/<int:id>', methods=['DELETE'])
+@session_student_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_session_student(id):
     ss = db.session.get(SessionsStudents, id)

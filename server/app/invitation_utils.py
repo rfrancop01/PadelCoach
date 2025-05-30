@@ -44,11 +44,13 @@ El equipo de PadelCoach.
         except Exception as e:
             print(f"Error al enviar el correo a {to_email}: {e}")
 
-def create_invitation(email, role="student"):
+def create_invitation(email, role="student", level=None):
     token = generate_invite_token(email)
     expires_at = datetime.utcnow() + timedelta(hours=24)
 
     invitation = Invitations(email=email, token=token, expires_at=expires_at, role=role)
+    if level:
+        invitation.level = level
     db.session.add(invitation)
     db.session.commit()
 

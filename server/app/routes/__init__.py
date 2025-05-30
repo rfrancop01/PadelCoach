@@ -1,5 +1,3 @@
-
-
 from app.routes.auth_routes import auth_routes
 from app.routes.user_routes import user_routes
 from app.routes.student_routes import student_routes

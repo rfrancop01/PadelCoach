@@ -5,7 +5,7 @@ from .. import db
 
 trainer_routes = Blueprint('trainer_routes', __name__)
 
-@trainer_routes.route('/api/trainers', methods=['GET'])
+@trainer_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_trainers():
     claims = get_jwt()
@@ -22,7 +22,7 @@ def list_trainers():
         result.append(data)
     return jsonify({"message": "Lista de entrenadores", "results": result}), 200
 
-@trainer_routes.route('/api/trainers', methods=['POST'])
+@trainer_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_trainer():
     claims = get_jwt()
@@ -37,7 +37,7 @@ def create_trainer():
     db.session.commit()
     return jsonify({"message": "Trainer created successfully", "results": new_trainer.serialize()}), 201
 
-@trainer_routes.route('/api/trainers/<int:id>', methods=['GET'])
+@trainer_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_trainer(id):
     trainer = db.session.get(Trainers, id)
@@ -49,7 +49,7 @@ def get_trainer(id):
         return jsonify({"message": "Usuario no autorizado"}), 403
     return jsonify({"message": f"Trainer {id} found", "results": trainer.serialize()}), 200
 
-@trainer_routes.route('/api/trainers/<int:id>', methods=['PUT'])
+@trainer_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_trainer(id):
     trainer = db.session.get(Trainers, id)
@@ -65,7 +65,7 @@ def update_trainer(id):
     db.session.commit()
     return jsonify({"message": f"Trainer {id} updated successfully", "results": trainer.serialize()}), 200
 
-@trainer_routes.route('/api/trainers/<int:id>', methods=['DELETE'])
+@trainer_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_trainer(id):
     trainer = db.session.get(Trainers, id)

@@ -1,6 +1,3 @@
-
-
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
 from ..models import Invitations
@@ -12,7 +9,7 @@ import traceback
 
 invitation_routes = Blueprint('invitation_routes', __name__)
 
-@invitation_routes.route('/api/invitations', methods=['GET'])
+@invitation_routes.route('', methods=['GET'])
 @jwt_required()
 def list_invitations():
     claims = get_jwt()
@@ -24,11 +21,12 @@ def list_invitations():
         "email": inv.email,
         "token": inv.token,
         "created_at": inv.created_at,
-        "expires_at": inv.created_at + datetime.timedelta(hours=48)
+        "expires_at": inv.created_at + datetime.timedelta(hours=48),
+        "is_used": inv.used
     } for inv in invitations]
     return jsonify({"message": "Lista de invitaciones", "results": results}), 200
 
-@invitation_routes.route('/api/invitations', methods=['POST'])
+@invitation_routes.route('', methods=['POST'])
 @jwt_required()
 def upload_invitations():
     claims = get_jwt()
@@ -39,15 +37,17 @@ def upload_invitations():
         return jsonify({"message": "Debe subir un archivo Excel con una columna 'email'"}), 400
     try:
         df = pd.read_excel(file, sheet_name=0)
-        if 'email' not in df.columns:
-            return jsonify({"message": "El archivo debe contener una columna llamada 'email'"}), 400
-        emails = df['email'].dropna().tolist()
-        if not emails:
-            return jsonify({"message": "No se encontraron correos electrónicos válidos en el archivo"}), 400
+        if 'email' not in df.columns or 'level' not in df.columns:
+            return jsonify({"message": "El archivo debe contener columnas llamadas 'email' y 'level'"}), 400
+        invitations_data = df[['email', 'level']].dropna().to_dict(orient='records')
+        if not invitations_data:
+            return jsonify({"message": "No se encontraron datos válidos en el archivo"}), 400
     except Exception as e:
         return jsonify({"message": f"Error al procesar el archivo: {str(e)}"}), 400
     invitations_sent = []
-    for email in emails:
+    for item in invitations_data:
+        email = item['email']
+        level = item['level']
         existing_invitation = db.session.execute(
             db.select(Invitations).where(Invitations.email == email)
         ).scalar()
@@ -60,7 +60,7 @@ def upload_invitations():
                 })
                 continue
         try:
-            token = create_invitation(email, role="student")
+            token = create_invitation(email, role="student", level=level)
             link = f"https://padelcoach.com/register?token={token}&email={email}"
             send_invitation_email(email, link)
             invitations_sent.append({
@@ -76,7 +76,7 @@ def upload_invitations():
             })
     return jsonify({"message": "Invitaciones procesadas", "results": invitations_sent}), 200
 
-@invitation_routes.route('/api/invitations/resend', methods=['POST'])
+@invitation_routes.route('/resend', methods=['POST'])
 @jwt_required()
 def resend_invitation():
     claims = get_jwt()
@@ -91,8 +91,6 @@ def resend_invitation():
     ).scalar()
     if not invitation:
         return jsonify({"message": "No se encontró invitación para este email"}), 404
-    if (datetime.datetime.utcnow() - invitation.created_at).total_seconds() <= 172800:
-        return jsonify({"message": "La invitación aún es válida"}), 400
     db.session.delete(invitation)
     db.session.commit()
     new_token = create_invitation(email)

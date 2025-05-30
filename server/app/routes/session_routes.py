@@ -5,7 +5,7 @@ from .. import db
 
 session_routes = Blueprint('session_routes', __name__)
 
-@session_routes.route('/api/sessions', methods=['GET'])
+@session_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_sessions():
     claims = get_jwt()
@@ -15,11 +15,14 @@ def list_sessions():
     sessions = db.session.execute(db.select(Sessions)).scalars()
     result = []
     for session in sessions:
-        data = session.serialize()
-        trainer = db.session.get(Users, session.trainer_id)
-        court = db.session.get(Courts, session.court_id)
-        data['trainer'] = trainer.serialize() if trainer else None
-        data['court'] = court.serialize() if court else None
+        data = {
+            "id": session.id,
+            "date": session.date.strftime("%d/%m/%Y") if session.date else None,
+            "time": session.time if isinstance(session.time, str) else session.time.strftime("%H:%M") if session.time else None,
+            "notes": session.notes,
+            "court": db.session.get(Courts, session.court_id).serialize() if session.court_id else None,
+            "trainer": db.session.get(Users, session.trainer_id).serialize() if session.trainer_id else None
+        }
         associations = db.session.execute(
             db.select(SessionsStudents).where(SessionsStudents.session_id == session.id)
         ).scalars()
@@ -37,7 +40,7 @@ def list_sessions():
         result.append(data)
     return jsonify({"message": "Lista de sesiones", "results": result}), 200
 
-@session_routes.route('/api/sessions', methods=['POST'])
+@session_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_session():
     claims = get_jwt()
@@ -56,7 +59,7 @@ def create_session():
     db.session.commit()
     return jsonify({"message": "Session created successfully", "results": new_session.serialize()}), 201
 
-@session_routes.route('/api/sessions/<int:id>', methods=['GET'])
+@session_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_session(id):
     session_obj = db.session.get(Sessions, id)
@@ -77,6 +80,12 @@ def get_session(id):
         if not is_assigned:
             return jsonify({"message": "No autorizado para ver esta sesión"}), 403
     data = session_obj.serialize()
+    if isinstance(session_obj.time, str):
+        data['time'] = session_obj.time
+    elif session_obj.time:
+        data['time'] = session_obj.time.strftime("%H:%M")
+    else:
+        data['time'] = None
     trainer = db.session.get(Users, session_obj.trainer_id)
     court = db.session.get(Courts, session_obj.court_id)
     data['trainer'] = trainer.serialize() if trainer else None
@@ -97,7 +106,7 @@ def get_session(id):
     data['students'] = students_list
     return jsonify({"message": f"Session {id} found", "results": data}), 200
 
-@session_routes.route('/api/sessions/<int:id>', methods=['PUT'])
+@session_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_session(id):
     session_obj = db.session.get(Sessions, id)
@@ -117,7 +126,7 @@ def update_session(id):
     db.session.commit()
     return jsonify({"message": f"Session {id} updated successfully", "results": session_obj.serialize()}), 200
 
-@session_routes.route('/api/sessions/<int:id>', methods=['DELETE'])
+@session_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_session(id):
     session_obj = db.session.get(Sessions, id)

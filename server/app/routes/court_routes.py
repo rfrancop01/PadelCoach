@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from ..models import Courts, Sessions
+from ..models import Courts, Sessions, SessionsStudents, Students
 from .. import db
 
 court_routes = Blueprint('court_routes', __name__)
 
-@court_routes.route('/api/courts', methods=['GET'])
+@court_routes.route('/', methods=['GET'])
 @jwt_required()
 def list_courts():
     claims = get_jwt()
@@ -15,11 +15,9 @@ def list_courts():
     if role == "admin":
         courts = db.session.execute(db.select(Courts)).scalars()
     else:
-        from ..models import Sessions
         if role == "trainer":
             sessions = db.session.execute(db.select(Sessions).where(Sessions.trainer_id == user_id)).scalars()
         elif role == "student":
-            from ..models import SessionsStudents, Students
             student = db.session.execute(db.select(Students).where(Students.user_id == user_id)).scalar()
             if not student:
                 return jsonify({"message": "Student record not found"}), 404
@@ -35,7 +33,7 @@ def list_courts():
     result = [court.serialize() for court in courts]
     return jsonify({"message": "Lista de canchas", "results": result}), 200
 
-@court_routes.route('/api/courts', methods=['POST'])
+@court_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_court():
     claims = get_jwt()
@@ -52,7 +50,7 @@ def create_court():
     db.session.commit()
     return jsonify({"message": "Court created successfully", "results": new_court.serialize()}), 201
 
-@court_routes.route('/api/courts/<int:id>', methods=['GET'])
+@court_routes.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_court(id):
     claims = get_jwt()
@@ -64,7 +62,6 @@ def get_court(id):
         return jsonify({"message": "Court not found"}), 404
 
     if role != "admin":
-        from ..models import Sessions, SessionsStudents, Students
         if role == "trainer":
             sessions = db.session.execute(db.select(Sessions).where(Sessions.court_id == id, Sessions.trainer_id == user_id)).scalars()
         elif role == "student":
@@ -91,7 +88,7 @@ def get_court(id):
     data['sessions'] = sessions_data
     return jsonify({"message": f"Court {id} found", "results": data}), 200
 
-@court_routes.route('/api/courts/<int:id>', methods=['PUT'])
+@court_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_court(id):
     claims = get_jwt()
@@ -107,7 +104,7 @@ def update_court(id):
     db.session.commit()
     return jsonify({"message": f"Court {id} updated successfully", "results": court.serialize()}), 200
 
-@court_routes.route('/api/courts/<int:id>', methods=['DELETE'])
+@court_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_court(id):
     claims = get_jwt()
