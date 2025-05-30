@@ -1,8 +1,6 @@
 from flask import Flask
-from flask import Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_restx import Api  # Añadido
 from flask_jwt_extended import JWTManager
 from config import Config
 
@@ -18,49 +16,24 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    authorizations = {
-        'Bearer': {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'Authorization',
-            'description': 'Añade "Bearer <token>" aquí'
-        }
-    }
+    from .routes.auth_routes import auth_routes
+    from .routes.user_routes import user_routes
+    from .routes.student_routes import student_routes
+    from .routes.trainer_routes import trainer_routes
+    from .routes.court_routes import court_routes
+    from .routes.session_routes import session_routes
+    from .routes.session_student_routes import session_student_routes
+    from .routes.invitation_routes import invitation_routes
+    from .routes.trainingplan_routes import trainingplan_routes
 
-    blueprint = Blueprint('api', __name__, url_prefix='/api')
+    app.register_blueprint(auth_routes)
+    app.register_blueprint(user_routes)
+    app.register_blueprint(student_routes)
+    app.register_blueprint(trainer_routes)
+    app.register_blueprint(court_routes)
+    app.register_blueprint(session_routes)
+    app.register_blueprint(session_student_routes)
+    app.register_blueprint(invitation_routes)
+    app.register_blueprint(trainingplan_routes)
 
-    api = Api(
-        blueprint,
-        version='1.0',
-        title='PadelCoach API',
-        description='API para gestión de sesiones de padel',
-        doc='/docs',
-        authorizations=authorizations,
-        security=[{'Bearer': []}]
-    )
-
-    # Importar y registrar Namespaces
-    from .routes import (
-        auth_ns,
-        users_ns,
-        students_ns,
-        trainers_ns,
-        courts_ns,
-        sessions_ns,
-        ss_ns,
-        invitations_ns,
-        trainingplans_ns
-    )
-
-    api.add_namespace(auth_ns, path='/auth')
-    api.add_namespace(users_ns, path='/users')
-    api.add_namespace(students_ns, path='/students')
-    api.add_namespace(trainers_ns, path='/trainers')
-    api.add_namespace(courts_ns, path='/courts')
-    api.add_namespace(sessions_ns, path='/sessions')
-    api.add_namespace(ss_ns, path='/session-students')
-    api.add_namespace(invitations_ns, path='/invitations')
-    api.add_namespace(trainingplans_ns, path='/training_plans')
-
-    app.register_blueprint(blueprint)
     return app

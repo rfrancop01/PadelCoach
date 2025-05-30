@@ -1,0 +1,11 @@
+
+
+from app.routes.auth_routes import auth_routes
+from app.routes.user_routes import user_routes
+from app.routes.student_routes import student_routes
+from app.routes.trainer_routes import trainer_routes
+from app.routes.court_routes import court_routes
+from app.routes.session_routes import session_routes
+from app.routes.session_student_routes import session_student_routes
+from app.routes.invitation_routes import invitation_routes
+from app.routes.trainingplan_routes import trainingplan_routes
