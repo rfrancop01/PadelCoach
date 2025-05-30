@@ -16,25 +16,51 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
-    if (token && userData) {
-      setUser(JSON.parse(userData))
+    const rawUser = localStorage.getItem('user')
+
+    try {
+      if (token && rawUser) {
+        const parsedUser = JSON.parse(rawUser)
+        setUser(parsedUser)
+      }
+    } catch (error) {
+      console.error("Error al parsear el usuario:", error)
+      localStorage.removeItem('user')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   const login = async (credentials) => {
-    const { access_token, results } = await apiLogin(credentials)
-    localStorage.setItem('token', access_token)
-    localStorage.setItem('user', JSON.stringify(results))
-    setUser(results)
+    try {
+      const { access_token, results } = await apiLogin(credentials)
+
+      if (access_token && results) {
+        localStorage.setItem('token', access_token)
+        localStorage.setItem('user', JSON.stringify(results))
+        setUser(results)
+      } else {
+        console.error("Login: datos inválidos (falta access_token o results)")
+      }
+    } catch (error) {
+      console.error("Error durante el login:", error)
+    }
   }
 
   const signup = async (data) => {
-    const { access_token, results } = await apiSignup(data)
-    localStorage.setItem('token', access_token)
-    localStorage.setItem('user', JSON.stringify(results))
-    setUser(results)
+    try {
+      const { access_token, results } = await apiSignup(data)
+
+      if (access_token && results) {
+        localStorage.setItem('token', access_token)
+        localStorage.setItem('user', JSON.stringify(results))
+        setUser(results)
+      } else {
+        console.error("Signup: datos inválidos (falta access_token o results)")
+      }
+    } catch (error) {
+      console.error("Error durante el signup:", error)
+    }
   }
 
   const logout = () => {
