@@ -1,10 +1,13 @@
-import React, { createContext, useState, useEffect } from 'react'
+import React, { createContext, useState, useEffect, useCallback } from 'react'
 import {
   login as apiLogin,
   signup as apiSignup,
   requestPasswordReset,
   resetPassword
 } from '../api/auth'
+import { useNavigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 // Context
 export const AuthContext = createContext()
@@ -13,6 +16,15 @@ export const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  // Logout function
+  const logout = useCallback(() => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+    navigate('/login')
+  }, [navigate])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -22,6 +34,26 @@ export const AuthProvider = ({ children }) => {
       if (token && rawUser) {
         const parsedUser = JSON.parse(rawUser)
         setUser(parsedUser)
+
+        // Decode token payload to get exp
+        const payloadBase64 = token.split('.')[1]
+        if (payloadBase64) {
+          const payloadJson = atob(payloadBase64)
+          const payload = JSON.parse(payloadJson)
+          if (payload.exp) {
+            const expiresAtMs = payload.exp * 1000
+            const nowMs = Date.now()
+            const timeout = expiresAtMs - nowMs
+            if (timeout > 0) {
+              const timerId = setTimeout(() => {
+                logout()
+              }, timeout)
+              return () => clearTimeout(timerId)
+            } else {
+              logout()
+            }
+          }
+        }
       }
     } catch (error) {
       console.error("Error al parsear el usuario:", error)
@@ -29,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [logout])
 
   const login = async (credentials) => {
     try {
@@ -39,11 +71,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', access_token)
         localStorage.setItem('user', JSON.stringify(results))
         setUser(results)
+        return { success: true }
       } else {
-        console.error("Login: datos inválidos (falta access_token o results)")
+        return { success: false, message: "Login: datos inválidos (falta access_token o results)" }
       }
     } catch (error) {
-      console.error("Error durante el login:", error)
+      return { success: false, message: error.message }
     }
   }
 
@@ -55,18 +88,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', access_token)
         localStorage.setItem('user', JSON.stringify(results))
         setUser(results)
+        return { success: true }
       } else {
-        console.error("Signup: datos inválidos (falta access_token o results)")
+        return { success: false, message: "Signup: datos inválidos (falta access_token o results)" }
       }
     } catch (error) {
-      console.error("Error durante el signup:", error)
+      return { success: false, message: error.message }
     }
-  }
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setUser(null)
   }
 
   const requestReset = async (payload) => {
@@ -81,7 +109,12 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{ user, loading, login, signup, logout, requestReset, reset }}
     >
-      {!loading && children}
+      {!loading && (
+        <>
+          {children}
+          <ToastContainer />
+        </>
+      )}
     </AuthContext.Provider>
   )
 }
