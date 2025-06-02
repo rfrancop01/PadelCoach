@@ -6,23 +6,21 @@ import {
   resetPassword
 } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-// Context
 export const AuthContext = createContext()
 
-// Provider como named export
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  // Logout function
   const logout = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setUser(null)
+    toast.info("Sesión cerrada. Por favor, inicia sesión de nuevo.")
     navigate('/login')
   }, [navigate])
 
@@ -35,7 +33,6 @@ export const AuthProvider = ({ children }) => {
         const parsedUser = JSON.parse(rawUser)
         setUser(parsedUser)
 
-        // Decode token payload to get exp
         const payloadBase64 = token.split('.')[1]
         if (payloadBase64) {
           const payloadJson = atob(payloadBase64)
@@ -58,27 +55,30 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Error al parsear el usuario:", error)
       localStorage.removeItem('user')
+      setUser(null)
     } finally {
       setLoading(false)
     }
   }, [logout])
 
-  const login = async (credentials) => {
-    try {
-      const { access_token, results } = await apiLogin(credentials)
+const login = async (credentials) => {
+  try {
+    const { access_token, results } = await apiLogin(credentials);
 
-      if (access_token && results) {
-        localStorage.setItem('token', access_token)
-        localStorage.setItem('user', JSON.stringify(results))
-        setUser(results)
-        return { success: true }
-      } else {
-        return { success: false, message: "Login: datos inválidos (falta access_token o results)" }
-      }
-    } catch (error) {
-      return { success: false, message: error.message }
+    if (access_token && results) {
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(results));
+      setUser(results);
+      return { success: true };
+    } else {
+      console.log("Login inválido: falta access_token o results");
+      return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
     }
+  } catch (error) {
+    console.log("Error en login API:", error.message || error);
+    return { success: false, message: error.message || "Error desconocido durante el login" };
   }
+};
 
   const signup = async (data) => {
     try {
