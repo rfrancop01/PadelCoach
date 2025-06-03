@@ -1,3 +1,4 @@
+// src/api/index.js
 import axios from 'axios'
 
 export const api = axios.create({
@@ -7,26 +8,34 @@ export const api = axios.create({
   }
 })
 
-// Interceptor para añadir el JWT de acceso (access_token) si existe
+// Interceptor de petición: adjuntar el token correcto
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('access_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const token = localStorage.getItem('token')   // misma clave que usas para guardar
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 })
 
-// Interceptor para manejar errores globales
+// Interceptor de respuesta: no recargar si viene de /auth/login
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
-      // Limpiar token y redirigir al login en caso de no autorizado
+    const status = error.response?.status
+    const reqUrl = error.config?.url || ""
+
+    if (status === 401) {
+      if (reqUrl.endsWith('/auth/login')) {
+        // 401 al intentar hacer login → dejamos que el catch(lo capture)
+        return Promise.reject(error)
+      }
+      // Cualquier otro 401 (p.ej. acceder a /users sin token) → limpiar y redirect
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
     return Promise.reject(error)
   }
 )
-
 
 export { login, signup, requestPasswordReset, resetPassword } from './auth'
 export * from './courts'

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import bgImage from "../assets/fondo.jpg";
 
@@ -30,37 +30,32 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("handleSubmit iniciado");  // Debe salir siempre
 
     setError("");
-
     if (!validate()) {
-      console.log("Validación fallida");
       return;
     }
 
     try {
       const result = await login({ email, password });
       if (result.success) {
-        console.log("Login correcto, navegando...");
         navigate("/dashboard");
       } else {
-        console.log("Error en login:", result.message);
         setError(result.message || "Credenciales inválidas.");
       }
     } catch (err) {
-      console.log("Error capturado en login:", err);
       setError(err.message || "Error inesperado.");
     }
   };
 
   return (
     <>
+      {/* Fondo de pantalla */}
       <div
         className="fixed inset-0 bg-cover bg-center z-0"
         style={{ backgroundImage: `url(${bgImage})` }}
       >
-        <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
       </div>
 
       <div className="relative min-h-screen flex items-center justify-center px-6 z-10">
@@ -68,10 +63,21 @@ export const Login = () => {
           <h1 className="text-3xl font-bold mb-8 text-center text-gray-900">
             Iniciar sesión
           </h1>
+
           <form onSubmit={handleSubmit} noValidate>
-            {error && <p className="text-red-600 text-sm text-center mb-4">{error}</p>}
+            {error && (
+              <p className="text-red-600 text-sm text-center mb-4" aria-live="polite">
+                {error}
+              </p>
+            )}
+
             <div className="mb-4">
-              <label htmlFor="email" className="block mb-1 font-semibold text-gray-700">Email</label>
+              <label
+                htmlFor="email"
+                className="block mb-1 font-semibold text-gray-700"
+              >
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -82,8 +88,14 @@ export const Login = () => {
                 required
               />
             </div>
+
             <div className="mb-6">
-              <label htmlFor="password" className="block mb-1 font-semibold text-gray-700">Contraseña</label>
+              <label
+                htmlFor="password"
+                className="block mb-1 font-semibold text-gray-700"
+              >
+                Contraseña
+              </label>
               <input
                 id="password"
                 type="password"
@@ -94,6 +106,7 @@ export const Login = () => {
                 required
               />
             </div>
+
             <button
               type="submit"
               className="w-full py-2 bg-primary text-white font-semibold rounded-md hover:bg-accent transition"
@@ -101,10 +114,14 @@ export const Login = () => {
               Entrar
             </button>
           </form>
+
           <div className="text-right mt-4">
-            <a href="/password-reset/request" className="text-primary hover:text-accent text-sm font-semibold">
+            <Link
+              to="/password-reset/request"
+              className="text-primary hover:text-accent text-sm font-semibold"
+            >
               ¿Olvidaste contraseña?
-            </a>
+            </Link>
           </div>
         </div>
       </div>

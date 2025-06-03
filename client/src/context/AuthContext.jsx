@@ -24,43 +24,48 @@ export const AuthProvider = ({ children }) => {
     navigate('/login')
   }, [navigate])
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    const rawUser = localStorage.getItem('user')
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  const rawUser = localStorage.getItem('user');
 
-    try {
-      if (token && rawUser) {
-        const parsedUser = JSON.parse(rawUser)
-        setUser(parsedUser)
+  // Si no hay token o no hay user, no hacemos logout, solo dejamos que el login se muestre.
+  if (!token || !rawUser) {
+    setLoading(false);
+    return;
+  }
 
-        const payloadBase64 = token.split('.')[1]
-        if (payloadBase64) {
-          const payloadJson = atob(payloadBase64)
-          const payload = JSON.parse(payloadJson)
-          if (payload.exp) {
-            const expiresAtMs = payload.exp * 1000
-            const nowMs = Date.now()
-            const timeout = expiresAtMs - nowMs
-            if (timeout > 0) {
-              const timerId = setTimeout(() => {
-                logout()
-              }, timeout)
-              return () => clearTimeout(timerId)
-            } else {
-              logout()
-            }
-          }
+  // Si llegamos aquí, sí había token y rawUser: ahora validamos la expiración del JWT.
+  try {
+    const parsedUser = JSON.parse(rawUser);
+    setUser(parsedUser);
+
+    const payloadBase64 = token.split('.')[1];
+    if (payloadBase64) {
+      const payloadJson = atob(payloadBase64);
+      const payload = JSON.parse(payloadJson);
+      if (payload.exp) {
+        const expiresAtMs = payload.exp * 1000;
+        const nowMs = Date.now();
+        const timeout = expiresAtMs - nowMs;
+        if (timeout > 0) {
+          // Programamos el logout al expirar
+          const timerId = setTimeout(() => {
+            logout();
+          }, timeout);
+          return () => clearTimeout(timerId);
+        } else {
+          // Si ya está expirado, cerramos sesión
+          logout();
         }
       }
-    } catch (error) {
-      console.error("Error al parsear el usuario:", error)
-      localStorage.removeItem('user')
-      setUser(null)
-    } finally {
-      setLoading(false)
     }
-  }, [logout])
-
+  } catch (error) {
+    localStorage.removeItem('user');
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+}, [logout]);
 const login = async (credentials) => {
   try {
     const { access_token, results } = await apiLogin(credentials);
@@ -71,11 +76,9 @@ const login = async (credentials) => {
       setUser(results);
       return { success: true };
     } else {
-      console.log("Login inválido: falta access_token o results");
       return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
     }
   } catch (error) {
-    console.log("Error en login API:", error.message || error);
     return { success: false, message: error.message || "Error desconocido durante el login" };
   }
 };
