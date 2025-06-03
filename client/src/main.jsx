@@ -14,7 +14,7 @@ createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <App />
         <ToastContainer 
-          position="top-right"
+          position="bottom-right"
           autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}
@@ -22,7 +22,7 @@ createRoot(document.getElementById('root')).render(
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="colored"
+          theme="light"
         />
       </AuthProvider>
     </BrowserRouter>

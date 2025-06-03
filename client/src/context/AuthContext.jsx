@@ -6,7 +6,7 @@ import {
   resetPassword
 } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 export const AuthContext = createContext()
@@ -74,7 +74,7 @@ const login = async (credentials) => {
       localStorage.setItem('token', access_token);
       localStorage.setItem('user', JSON.stringify(results));
       setUser(results);
-      return { success: true };
+      return { success: true, user: results };
     } else {
       return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
     }
@@ -115,7 +115,6 @@ const login = async (credentials) => {
       {!loading && (
         <>
           {children}
-          <ToastContainer />
         </>
       )}
     </AuthContext.Provider>

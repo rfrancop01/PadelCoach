@@ -1,6 +1,9 @@
-// src/routes/index.jsx
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import { Layout } from "./components/Layout";
+
+import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Profile } from "./pages/Profile";
@@ -16,39 +19,50 @@ import { SessionDetail } from "./pages/sessions/SessionDetail";
 import { TrainerList } from "./pages/trainers/TrainerList";
 import { TrainerDetail } from "./pages/trainers/TrainerDetail";
 import { Invitations } from "./pages/invitations/Invitations";
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { TrainingPlanList } from "./pages/trainingplans/TrainingPlanList";
+import { UserList } from "./pages/users/UserList";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/password-reset" element={<RequestReset />} />
-      <Route path="/password-reset/:token" element={<ResetPassword />} />
+      <Route element={<Layout />}>
+        {/* Home route */}
+        <Route path="/" element={<Home />} />
 
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/password-reset" element={<RequestReset />} />
+        <Route path="/password-reset/:token" element={<ResetPassword />} />
 
-        {/* Admin-only */}
-        <Route path="/students" element={<StudentList />} />
-        <Route path="/students/:id" element={<StudentDetail />} />
-        <Route path="/trainers" element={<TrainerList />} />
-        <Route path="/trainers/:id" element={<TrainerDetail />} />
-        <Route path="/courts" element={<CourtList />} />
-        <Route path="/courts/:id" element={<CourtDetail />} />
-        <Route path="/invitations" element={<Invitations />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          {/* Admin-only routes */}
+          <Route path="/admin/users" element={<UserList />} />
+          <Route path="/admin/students" element={<StudentList />} />
+          <Route path="/admin/trainers" element={<TrainerList />} />
+          <Route path="/admin/courts" element={<CourtList />} />
+          <Route path="/admin/trainingplans" element={<TrainingPlanList />} />
+          <Route path="/admin/invitations" element={<Invitations />} />
 
-        {/* Shared for trainer and student */}
-        <Route path="/sessions" element={<SessionList />} />
-        <Route path="/sessions/:id" element={<SessionDetail />} />
+          {/* Non-admin routes */}
+          <Route path="/students/:id" element={<StudentDetail />} />
+          <Route path="/trainers/:id" element={<TrainerDetail />} />
+          <Route path="/courts/:id" element={<CourtDetail />} />
+
+          {/* Shared for trainer and student */}
+          <Route path="/sessions" element={<SessionList />} />
+          <Route path="/sessions/:id" element={<SessionDetail />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Route>
-
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

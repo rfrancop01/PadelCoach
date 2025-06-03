@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCourtById } from "../../api/courts";
+import { getCourt } from "../../api/courts";
 import { Spinner } from "../../components/Spinner";
 
 export const CourtDetail = () => {
@@ -11,7 +11,7 @@ export const CourtDetail = () => {
   useEffect(() => {
     const fetchCourt = async () => {
       try {
-        const data = await getCourtById(id);
+        const data = await getCourt(id);
         setCourt(data);
       } catch (error) {
         console.error("Error fetching court:", error);

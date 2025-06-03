@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from ..models import Sessions, SessionsStudents, Students, Users, Courts
+from sqlalchemy import extract, func
+from datetime import datetime
 from .. import db
 
 session_routes = Blueprint('session_routes', __name__)
@@ -140,3 +142,31 @@ def delete_session(id):
     db.session.delete(session_obj)
     db.session.commit()
     return jsonify({"message": f"Session {id} deleted successfully"}), 200
+
+@session_routes.route('/monthly', methods=['GET'])
+@jwt_required()
+def sessions_by_month():
+    current_year = datetime.now().year
+
+    result = (
+        db.session.query(
+            extract('month', Sessions.date).label('month'),
+            func.count(Sessions.id).label('count')
+        )
+        .filter(extract('year', Sessions.date) == current_year)
+        .group_by('month')
+        .order_by('month')
+        .all()
+    )
+
+    month_names = {
+        1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun',
+        7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'
+    }
+
+    response = [
+        {'month': month_names[int(month)], 'count': count}
+        for month, count in result
+    ]
+
+    return jsonify({"message": "Sesiones por mes", "results": response}), 200

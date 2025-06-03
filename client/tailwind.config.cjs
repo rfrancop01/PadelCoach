@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./index.html",
@@ -7,11 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0083B0',     
-        secondary: '#00B4DB',   
-        accent: '#F9A826',      
-        background: '#F2F2F2',  
-        dark: '#1F2937',        
+        primary: '#0E4A86',      // Azul oscuro profesional
+        primaryLight: '#3566A0', // Azul medio para fondos
+        secondary: '#6096BA',    // Azul suave para elementos secundarios
+        accent: '#FFB347',       // Amarillo/naranja suave para acentos (botones, links)
+        background: '#F7F9FC',   // Fondo muy suave, casi blanco con un toque azulado
+        textDark: '#1E2D3B',     // Texto oscuro para buena legibilidad
+        textLight: '#617A9B',    // Texto gris azulado para subtítulos o info secundaria
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
@@ -23,7 +24,7 @@ module.exports = {
       },
       boxShadow: {
         card: '0 4px 14px rgba(0, 0, 0, 0.1)',
-        button: '0 2px 8px rgba(0, 132, 176, 0.3)',
+        button: '0 2px 8px rgba(14, 74, 134, 0.3)',
       },
     },
   },

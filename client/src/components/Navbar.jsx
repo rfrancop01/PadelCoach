@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export const Navbar = () => {
-  const { isAuthenticated, role, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -11,58 +11,99 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-primary-900 px-6 py-4 text-white shadow-md flex justify-between items-center">
-      <div className="text-lg font-semibold">
-        <Link to="/">PadelCoach</Link>
-      </div>
-      <div className="space-x-4">
-        <Link to="/" className="hover:text-primary-300 transition-colors duration-200">
-          Inicio
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-[999] bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-b border-white/20 shadow-sm px-10 py-4 flex justify-between items-center text-gray-900 dark:text-white">        
+      <div className="text-3xl font-extrabold cursor-default select-none text-white">
+        <Link to="/">
+          <span className="text-accent font-black">Padel</span>Coach
         </Link>
-
-        {isAuthenticated && (
-          <>
-            <Link to="/dashboard" className="hover:text-primary-300 transition-colors duration-200">
-              Dashboard
-            </Link>
-            <Link to="/profile" className="hover:text-primary-300 transition-colors duration-200">
-              Perfil
-            </Link>
-            {role === "admin" && (
-              <Link to="/admin" className="hover:text-primary-300 transition-colors duration-200">
-                Admin Panel
-              </Link>
-            )}
-            {role === "trainer" && (
-              <Link to="/sessions" className="hover:text-primary-300 transition-colors duration-200">
-                Mis Sesiones
-              </Link>
-            )}
-            {role === "student" && (
-              <Link to="/my-sessions" className="hover:text-primary-300 transition-colors duration-200">
-                Mis Entrenos
-              </Link>
-            )}
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 transition-colors px-3 py-1 rounded text-sm"
-            >
-              Logout
-            </button>
-          </>
-        )}
-
-        {!isAuthenticated && (
-          <>
-            <Link to="/login" className="hover:text-primary-300 transition-colors duration-200">
-              Login
-            </Link>
-            <Link to="/signup" className="hover:text-primary-300 transition-colors duration-200">
-              Signup
-            </Link>
-          </>
-        )}
       </div>
-    </nav>
+        <div className="space-x-8 text-lg font-semibold text-white flex items-center">
+          <Link
+            to="/"
+            className="hover:text-accent transition-colors duration-300"
+          >
+            Inicio
+          </Link>
+
+          {user ? (
+            <>
+              {/* Mostrar Dashboard solo para roles que no sean admin */}
+              {user.role !== "admin" && (
+                <Link
+                  to="/dashboard"
+                  className="hover:text-accent transition-colors duration-300"
+                >
+                  Dashboard
+                </Link>
+              )}
+
+              {/* Link exclusivo para admin */}
+              {user.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="hover:text-accent transition-colors duration-300"
+                >
+                  Admin Panel
+                </Link>
+              )}
+
+              <Link
+                to="/profile"
+                className="hover:text-accent transition-colors duration-300"
+              >
+                Perfil
+              </Link>
+
+              {user.role === "trainer" && (
+                <Link
+                  to="/sessions"
+                  className="hover:text-accent transition-colors duration-300"
+                >
+                  Mis Sesiones
+                </Link>
+              )}
+
+              {user.role === "student" && (
+                <Link
+                  to="/my-sessions"
+                  className="hover:text-accent transition-colors duration-300"
+                >
+                  Mis Entrenos
+                </Link>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="ml-4 bg-accent hover:bg-yellow-600 transition-colors px-4 py-2 rounded font-semibold text-gray-900"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="hover:text-accent transition-colors duration-300"
+              >
+                Registro
+              </Link>
+              <Link
+                to="/about"
+                className="hover:text-accent transition-colors duration-300"
+              >
+                Sobre Nosotros
+              </Link>
+              <Link
+                to="/login"
+                className="hover:text-accent transition-colors duration-300"
+              >
+                Login
+              </Link>
+            </>
+          )}
+        </div>
+      </nav>
+    </>
   );
 };
