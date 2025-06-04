@@ -74,7 +74,7 @@ def update_student(id):
     claims = get_jwt()
     current_user_id = claims.get("user_id")
     role = claims.get("role")
-    student = db.session.get(Students, id)
+    student = db.session.scalar(db.select(Students).where(Students.id == id))
     if not student:
         return jsonify({"message": "Student not found"}), 404
     if role != "admin" and student.user_id != current_user_id:

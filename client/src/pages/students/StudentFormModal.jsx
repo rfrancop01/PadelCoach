@@ -9,39 +9,27 @@ export const StudentFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     level: "",
     user_id: "",
   });
-  const [availableUsers, setAvailableUsers] = useState([]);
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        name: initialData.name || "",
-        last_name: initialData.last_name || "",
-        phone: initialData.phone || "",
-        level: initialData.level || "",
-        user_id: initialData.user_id || "",
-      });
-    } else {
-      setFormData({
-        name: "",
-        last_name: "",
-        phone: "",
-        level: "",
-        user_id: "",
-      });
-    }
-  }, [initialData]);
+useEffect(() => {
+  if (initialData) {
+    setFormData({
+      name: initialData.user?.name || "",
+      last_name: initialData.user?.last_name || "",
+      phone: initialData.user?.phone || "",
+      level: initialData.level || "",
+      user_id: initialData.user?.id || "",
+    });
+  } else {
+    setFormData({
+      name: "",
+      last_name: "",
+      phone: "",
+      level: "",
+      user_id: "",
+    });
+  }
+}, [initialData]);
 
-  useEffect(() => {
-    const fetchAvailableUsers = async () => {
-      try {
-        const res = await getAvailableStudentUsers();
-        setAvailableUsers(res.data.results);
-      } catch (err) {
-        console.error("Error al obtener usuarios disponibles:", err);
-      }
-    };
-    fetchAvailableUsers();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,7 +58,6 @@ export const StudentFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               value={formData.name}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             />
           </div>
           <div>
@@ -81,26 +68,7 @@ export const StudentFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               value={formData.last_name}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Usuario</label>
-            <select
-              name="user_id"
-              value={formData.user_id || ""}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-              disabled={!!initialData}
-            >
-              <option value="">Seleccione un usuario</option>
-              {availableUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} {user.last_name} ({user.email})
-                </option>
-              ))}
-            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Teléfono</label>
@@ -110,7 +78,6 @@ export const StudentFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               value={formData.phone}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             />
           </div>
           <div>
