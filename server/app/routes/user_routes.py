@@ -3,6 +3,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
 from ..models import Users
+from ..models import Students
 from .. import db
 
 user_routes = Blueprint('user_routes', __name__)
@@ -102,3 +103,21 @@ def delete_user(id):
     user.is_active = False
     db.session.commit()
     return jsonify({"message": f"User {id} deactivated successfully"}), 200
+@user_routes.route('/available-students', methods=['GET'])
+@jwt_required()
+def get_available_students():
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    subquery = db.select(Students.user_id).subquery()
+    available_users = db.session.execute(
+        db.select(Users)
+        .where(Users.role == "student")
+        .where(Users.id.not_in(subquery))
+    ).scalars().all()
+
+    return jsonify({
+        "message": "Usuarios disponibles para asignar como estudiantes",
+        "results": [user.serialize() for user in available_users]
+    }), 200

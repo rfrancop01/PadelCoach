@@ -8,6 +8,10 @@ import { AuthProvider } from './context/AuthContext'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root');
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

@@ -1,3 +1,5 @@
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import React, { useEffect, useState } from "react";
 import { getUsers, createUser, updateUser, deleteUser } from "../../api/users";
 import { Spinner } from "../../components/Spinner";
@@ -52,6 +54,7 @@ export const UserList = () => {
               <th className="px-6 py-3">Nombre</th>
               <th className="px-6 py-3">Email</th>
               <th className="px-6 py-3">Rol</th>
+              <th className="px-6 py-3">Estado</th>
               <th className="px-6 py-3">Acciones</th>
             </tr>
           </thead>
@@ -67,6 +70,9 @@ export const UserList = () => {
                     student: 'Estudiante'
                   }[user.role] || user.role}
                 </td>
+                <td className="px-6 py-4">
+                  {user.is_active ? "Activo" : "Inactivo"}
+                </td>
                 <td className="px-6 py-4 space-y-2 flex flex-col sm:flex-row sm:space-y-0 sm:space-x-2">
                   <button
                     onClick={() => {
@@ -78,22 +84,39 @@ export const UserList = () => {
                     Editar
                   </button>
                   <button
-                    onClick={async () => {
-                      if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-                        try {
-                          await deleteUser(user.id);
-                          toast.success("Usuario eliminado correctamente");
-                          const res = await getUsers();
-                          setUsers(res.data.results.filter((u) => u.is_active));
-                        } catch (err) {
-                          console.error("Error al eliminar usuario:", err);
-                          toast.error("Error al eliminar usuario");
-                        }
-                      }
+                    onClick={() => {
+                      confirmAlert({
+                        title: `${user.is_active ? "Desactivar" : "Activar"} usuario`,
+                        message: `¿Estás seguro de que deseas ${user.is_active ? "desactivar" : "activar"} este usuario?`,
+                        buttons: [
+                          {
+                            label: 'Sí',
+                            onClick: async () => {
+                              try {
+                                await updateUser(user.id, { is_active: !user.is_active });
+                                toast.success(`Usuario ${user.is_active ? "desactivado" : "activado"} correctamente`);
+                                const res = await getUsers();
+                                setUsers(res.data.results);
+                              } catch (err) {
+                                console.error("Error al actualizar estado del usuario:", err);
+                                toast.error("Error al actualizar estado del usuario");
+                              }
+                            }
+                          },
+                          {
+                            label: 'Cancelar',
+                            onClick: () => {}
+                          }
+                        ]
+                      });
                     }}
-                    className="text-sm px-3 py-1 rounded border border-red-500 text-red-600 bg-red-50 hover:bg-red-200 transition"
+                    className={`text-sm px-3 py-1 rounded border ${
+                      user.is_active
+                        ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-200"
+                        : "border-green-600 text-green-700 bg-green-50 hover:bg-green-100"
+                    } transition`}
                   >
-                    Eliminar
+                    {user.is_active ? "Desactivar" : "Activar"}
                   </button>
                 </td>
               </tr>

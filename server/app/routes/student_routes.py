@@ -12,15 +12,9 @@ def list_students():
     claims = get_jwt()
     if claims.get("role") not in ["admin", "trainer"]:
         return jsonify({"message": "Usuario no autorizado"}), 403
+
     students = db.session.execute(db.select(Students)).scalars()
-    result = []
-    for student in students:
-        data = student.serialize()
-        data.pop('user_id', None)
-        data.pop('is_active', None)
-        user = db.session.get(Users, student.user_id)
-        data['user'] = user.serialize() if user else None
-        result.append(data)
+    result = [s.serialize() for s in students]
     return jsonify({"message": "Lista de estudiantes", "results": result}), 200
 
 @student_routes.route('/', methods=['POST'])
@@ -31,11 +25,14 @@ def create_student():
         return jsonify({"message": "Usuario no autorizado"}), 403
     data = request.json
     level = data.get("level")
-    age = data.get("age")
     user_id = data.get("user_id")
-    if not level or not age or not user_id:
-        return jsonify({"message": "level, age and user_id are required"}), 400
-    new_student = Students(level=level, age=age, user_id=user_id)
+    if not level or not user_id:
+        return jsonify({"message": "level and user_id are required"}), 400
+    # Validar si el user_id ya está asociado a un estudiante
+    existing_student = db.session.scalar(db.select(Students).where(Students.user_id == user_id))
+    if existing_student:
+        return jsonify({"message": "Este usuario ya está registrado como estudiante"}), 409
+    new_student = Students(level=level, user_id=user_id)
     db.session.add(new_student)
     db.session.commit()
     return jsonify({"message": "Student created successfully", "results": new_student.serialize()}), 201
@@ -46,15 +43,30 @@ def get_student(id):
     claims = get_jwt()
     current_user_id = claims.get("user_id")
     role = claims.get("role")
+
     student = db.session.get(Students, id)
     if not student:
         return jsonify({"message": "Student not found"}), 404
     if role != "admin" and student.user_id != current_user_id:
         return jsonify({"message": "Usuario no autorizado"}), 403
-    data = student.serialize()
-    data.pop('user_id', None)
-    data.pop('is_active', None)
-    return jsonify({"message": f"Student {id} found", "results": data}), 200
+
+    user = db.session.get(Users, student.user_id)
+    if not user:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    result = {
+        "id": student.id,
+        "level": student.level,
+        "age": student.age,
+        "user_id": student.user_id,
+        "name": user.name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "phone": user.phone,
+        "is_active": user.is_active,
+    }
+
+    return jsonify({"message": f"Student {id} found", "results": result}), 200
 
 @student_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required()
@@ -69,9 +81,17 @@ def update_student(id):
         return jsonify({"message": "Usuario no autorizado"}), 403
     data = request.json
     student.level = data.get("level", student.level)
-    student.age = data.get("age", student.age)
-    if "is_active" in data:
-        student.is_active = data["is_active"]
+
+    # Actualizar también datos del usuario
+    user = db.session.get(Users, student.user_id)
+    if user:
+        user.name = data.get("name", user.name)
+        user.last_name = data.get("last_name", user.last_name)
+        user.email = data.get("email", user.email)
+        user.phone = data.get("phone", user.phone)
+        if "is_active" in data:
+            user.is_active = data["is_active"]
+
     db.session.commit()
     return jsonify({"message": f"Student {id} updated successfully", "results": student.serialize()}), 200
 
@@ -86,6 +106,10 @@ def delete_student(id):
         return jsonify({"message": "Student not found"}), 404
     if role != "admin":
         return jsonify({"message": "Usuario no autorizado"}), 403
-    student.is_active = False
+
+    user = db.session.get(Users, student.user_id)
+    if user:
+        user.is_active = False
+
     db.session.commit()
     return jsonify({"message": f"Student {id} deactivated successfully"}), 200

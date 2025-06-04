@@ -1,3 +1,97 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Personalización del modal react-confirm-alert */
+.react-confirm-alert-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 50 !important;
+}
+
+.react-confirm-alert {
+  font-family: 'Poppins', sans-serif !important;
+  background-color: white !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem 2rem !important;
+  box-shadow: none !important;
+  max-width: 400px !important;
+  width: 100% !important;
+  margin: auto !important;
+  position: relative !important;
+  transform: none !important;
+  text-align: center !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+}
+
+.react-confirm-alert-button-group {
+  margin-top: 1.5rem !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+}
+
+.react-confirm-alert-button-group button {
+  background-color: #0E4A86 !important; /* primary */
+  color: white !important;
+  padding: 0.5rem 1.2rem !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.3s !important;
+}
+
+.react-confirm-alert-button-group button:hover {
+  background-color: #3566A0 !important; /* primaryLight */
+}
+
+.react-confirm-alert-body {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Modal confirmación: título y mensaje */
+.react-confirm-alert h1 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.5rem !important;
+  color: #1e293b !important;
+}
+
+.react-confirm-alert p {
+  font-size: 1rem !important;
+  color: #374151 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Diferenciar botones */
+.react-confirm-alert-button-group button:first-child {
+  background-color: #dc2626 !important; /* red */
+}
+
+.react-confirm-alert-button-group button:last-child {
+  background-color: #6b7280 !important; /* gray */
+}
+
+/* Animación de entrada */
+.react-confirm-alert {
+  animation: fadeIn 0.2s ease-out !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
