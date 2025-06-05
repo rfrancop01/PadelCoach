@@ -22,8 +22,8 @@ export const StudentList = () => {
       const res = await getStudents();
       setStudents(res.data.results);
     } catch (err) {
-      console.error("Error al cargar estudiantes", err);
-      toast.error("Error al cargar estudiantes");
+      console.error("Error al cargar alumnos", err);
+      toast.error("Error al cargar alumnos");
     }
   };
 
@@ -94,7 +94,7 @@ export const StudentList = () => {
         {/* Filtros y título */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex flex-col gap-4">
-            <div className="text-2xl font-bold text-gray-900">Estudiantes asignados</div>
+            <div className="text-2xl font-bold text-gray-900">Alumnos asignados </div>
             <div className="flex flex-wrap items-end gap-6">
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700 mb-1">Buscar por nombre o apellidos</label>

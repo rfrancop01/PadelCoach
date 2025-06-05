@@ -18,7 +18,6 @@ def list_trainers():
         user = db.session.get(Users, trainer.user_id)
         data['user'] = user.serialize() if user else None
         data.pop('user_id', None)
-        data.pop('is_active', None)
         result.append(data)
     return jsonify({"message": "Lista de entrenadores", "results": result}), 200
 
@@ -61,7 +60,9 @@ def update_trainer(id):
         return jsonify({"message": "Usuario no autorizado"}), 403
     data = request.json
     if "is_active" in data:
-        trainer.is_active = data["is_active"]
+        user = db.session.get(Users, trainer.user_id)
+        if user:
+            user.is_active = data["is_active"]
     db.session.commit()
     return jsonify({"message": f"Trainer {id} updated successfully", "results": trainer.serialize()}), 200
 
@@ -75,6 +76,8 @@ def delete_trainer(id):
     current_user_id = claims.get("user_id")
     if claims.get("role") != "admin":
         return jsonify({"message": "Usuario no autorizado"}), 403
-    trainer.is_active = False
+    user = db.session.get(Users, trainer.user_id)
+    if user:
+        user.is_active = False
     db.session.commit()
     return jsonify({"message": f"Trainer {id} deactivated successfully"}), 200

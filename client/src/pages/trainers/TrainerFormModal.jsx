@@ -1,44 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { getAvailableStudentUsers } from "../../api/users";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export const StudentFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+export const TrainerFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   const [formData, setFormData] = useState({
     name: "",
     last_name: "",
+    email: "",
     phone: "",
-    level: "",
-    user_id: "",
+    is_active: true
   });
 
-useEffect(() => {
-  if (initialData) {
-    setFormData({
-      name: initialData.user?.name || "",
-      last_name: initialData.user?.last_name || "",
-      phone: initialData.user?.phone || "",
-      level: initialData.level || "",
-      user_id: initialData.user?.id || "",
-    });
-  } else {
-    setFormData({
-      name: "",
-      last_name: "",
-      phone: "",
-      level: "",
-      user_id: "",
-    });
-  }
-}, [initialData]);
-
+  useEffect(() => {
+    if (initialData?.user) {
+      setFormData({
+        name: initialData.user.name || "",
+        last_name: initialData.user.last_name || "",
+        email: initialData.user.email || "",
+        phone: initialData.user.phone || "",
+        is_active: initialData.user.is_active ?? true
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    console.log("onSave fired", formData);
+    onSave({ ...formData });
   };
 
   if (!isOpen) return null;
@@ -47,7 +42,7 @@ useEffect(() => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
         <h2 className="text-xl font-bold mb-4">
-          {initialData ? "Editar Alumno" : "Crear Alumno"}
+          {initialData ? "Editar Entrenador" : "Crear Entrenador"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -71,6 +66,16 @@ useEffect(() => {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Teléfono</label>
             <input
               type="text"
@@ -79,24 +84,6 @@ useEffect(() => {
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nivel</label>
-            <select
-              name="level"
-              value={formData.level}
-              onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            >
-              <option value="">Seleccione un nivel</option>
-              <option value="Primera">Primera</option>
-              <option value="Segunda">Segunda</option>
-              <option value="Tercera">Tercera</option>
-              <option value="Cuarta">Cuarta</option>
-              <option value="Iniciación">Iniciación</option>
-              <option value="Competición">Competición</option>
-            </select>
           </div>
           <div className="flex justify-end space-x-2 pt-4">
             <button

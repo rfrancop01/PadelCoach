@@ -48,13 +48,6 @@ export const Navbar = () => {
                 </Link>
               )}
 
-              <Link
-                to="/profile"
-                className="hover:text-accent transition-colors duration-300"
-              >
-                Perfil
-              </Link>
-
               {user.role === "trainer" && (
                 <Link
                   to="/sessions"
@@ -72,6 +65,14 @@ export const Navbar = () => {
                   Mis Entrenos
                 </Link>
               )}
+
+              {/* Mostrar perfil público para todos los roles autenticados */}
+              <Link
+                to={`/usuarios/${user.id}`}
+                className="hover:text-accent transition-colors duration-300"
+              >
+                Mi Perfil
+              </Link>
 
               <button
                 onClick={handleLogout}

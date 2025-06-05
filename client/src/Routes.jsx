@@ -23,6 +23,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { TrainingPlanList } from "./pages/trainingplans/TrainingPlanList";
 import { UserList } from "./pages/users/UserList";
+import { UserProfile } from "./pages/users/UserProfile";
 
 export default function AppRoutes() {
   return (
@@ -40,7 +41,6 @@ export default function AppRoutes() {
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* Admin-only routes */}
           <Route path="/admin/users" element={<UserList />} />
@@ -49,6 +49,8 @@ export default function AppRoutes() {
           <Route path="/admin/courts" element={<CourtList />} />
           <Route path="/admin/trainingplans" element={<TrainingPlanList />} />
           <Route path="/admin/invitations" element={<Invitations />} />
+
+          <Route path="/usuarios/:id" element={<UserProfile />} />
 
           {/* Non-admin routes */}
           <Route path="/students/:id" element={<StudentDetail />} />

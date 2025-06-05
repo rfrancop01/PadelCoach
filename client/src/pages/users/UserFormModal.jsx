@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
@@ -9,27 +10,56 @@ export const UserFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     password: "",
     phone: "",
     role: "student",
+    is_active: true,
   });
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        name: initialData.name || "",
+        last_name: initialData.last_name || "",
+        email: initialData.email || "",
+        password: "", // dejamos vacío si estamos editando
+        phone: initialData.phone || "",
+        role: initialData.role || "student",
+        is_active: initialData.is_active ?? true,
+      });
     } else {
-      setFormData({ name: "", last_name: "", email: "", password: "", phone: "", role: "student" });
+      setFormData({
+        name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        phone: "",
+        role: "student",
+        is_active: true,
+      });
     }
   }, [initialData]);
 
   if (!isOpen) return null;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    if (initialData) {
+      onSave({
+        id: initialData.id,
+        name: formData.name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        is_active: formData.is_active,
+      });
+    } else {
+      onSave(formData);
+    }
   };
 
   return (
@@ -81,31 +111,33 @@ export const UserFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-600"
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-500" />
-                )}
-              </button>
+          {!initialData && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700">Rol</label>
             <select
@@ -119,6 +151,20 @@ export const UserFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               <option value="student">Estudiante</option>
             </select>
           </div>
+          {initialData && (
+            <div>
+              <label className="inline-flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  name="is_active"
+                  checked={formData.is_active}
+                  onChange={handleChange}
+                  className="form-checkbox h-5 w-5 text-green-600"
+                />
+                <span className="ml-2 text-gray-700">Usuario activo</span>
+              </label>
+            </div>
+          )}
           <div className="flex justify-end space-x-2 pt-4">
             <button type="button" onClick={onClose} className="px-4 py-2 text-gray-600 hover:underline">
               Cancelar

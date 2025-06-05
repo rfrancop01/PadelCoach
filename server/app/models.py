@@ -32,7 +32,7 @@ class Users(db.Model):
             'last_name': self.last_name,
             'email': self.email,
             'phone': self.phone,
-            'photo_url': self.photo_url,
+            'photo_url': self.photo_url or "https://via.placeholder.com/150",
             'role': self.role,
             'is_active': self.is_active,
             'created_at': self.created_at.strftime("%d/%m/%Y %H:%M") if self.created_at else None,

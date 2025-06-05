@@ -109,64 +109,64 @@ export const AdminDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-10 space-y-12 bg-white bg-opacity-80 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Panel de Administración
       </h1>
 
-      <section className="bg-white rounded-xl shadow-md p-6 space-y-4">
+      <section className="bg-white rounded-xl shadow-md p-6 space-y-6">
         <h2 className="text-xl font-semibold text-gray-700">Accesos Rápidos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <a href="/admin/users" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
+          <a href="/admin/users" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Usuarios"></span>
             <span>Gestionar Usuarios</span>
           </a>
-          <a href="/admin/sessions" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
+          <a href="/admin/sessions" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Sesiones"></span>
             <span>Ver Sesiones</span>
           </a>
-          <a href="/admin/invitations" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
-            <span role="img" aria-label="Invitaciones"></span>
-            <span>Enviar Invitaciones</span>
+          <a href="/admin/trainers" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+            <span role="img" aria-label="Entrenadores"></span>
+            <span>Gestionar Entrenadores</span>
           </a>
-          <a href="/admin/courts" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
+          <a href="/admin/courts" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Pistas"></span>
             <span>Gestionar Pistas</span>
           </a>
-          <a href="/admin/trainingplans" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
+          <a href="/admin/trainingplans" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Planes"></span>
             <span>Planes de Entrenamiento</span>
           </a>
-          <a href="/admin/students" className="flex items-center justify-center space-x-2 bg-primaryLight hover:bg-primary text-white rounded-xl py-4 px-6 transition font-semibold shadow-md">
-            <span role="img" aria-label="Estudiantes"></span>
-            <span>Ver Estudiantes</span>
+          <a href="/admin/students" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+            <span role="img" aria-label="Alumnos"></span>
+            <span>Gestionar Alumnos</span>
           </a>
         </div>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-700">Resumen de actividad</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <h2 className="text-2xl font-semibold text-gray-700">Resumen de actividad</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {Object.entries(counts).map(([key, value]) => (
             <StatCard key={key} title={labelMap[key] || key} label={labelMap[key] || key} value={value} />
           ))}
         </div>
       </section>
 
-      <section className="overflow-x-auto">
-        <div className="flex flex-col md:flex-row gap-6 min-w-[640px] w-full">
-          <div className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col justify-center">
+      <section className="overflow-visible">
+        <div className="flex flex-col md:flex-row gap-6 w-full">
+          <div className="flex-1 bg-white rounded-xl shadow-md p-8 flex flex-col justify-center">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">Sesiones por mes</h2>
-            <div className="w-full min-w-[280px] mx-auto">
+            <div className="w-full">
               <MonthlySessionsChart data={monthlyData} />
             </div>
           </div>
 
-          <div className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col justify-center">
+          <div className="flex-1 bg-white rounded-xl shadow-md p-8 flex flex-col justify-center">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">Distribución de usuarios por rol</h2>
             {roleDistribution.length === 0 ? (
               <p>No hay datos para mostrar</p>
             ) : (
-              <ResponsiveContainer width="100%" minWidth={300} minHeight={260}>
+              <ResponsiveContainer width="100%" minHeight={260} style={{ marginTop: '-10px' }}>
                 <PieChart>
                   <Pie
                     data={roleDistribution}
