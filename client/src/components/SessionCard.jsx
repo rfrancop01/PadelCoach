@@ -23,7 +23,7 @@ const SessionCard = ({ session, onEdit, onDelete }) => {
 
   return (
     <Tooltip.Provider delayDuration={200}>
-      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md p-4 w-full transition transform hover:scale-[1.01] hover:shadow-lg">
+      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-opacity-90 backdrop-blur-sm rounded-xl shadow-md p-4 w-full transition transform hover:scale-[1.01] hover:shadow-lg">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
             {trainer?.name} {trainer?.last_name}

@@ -37,6 +37,21 @@ export const UserFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     }
   }, [initialData]);
 
+  useEffect(() => {
+    if (isOpen && !initialData) {
+      setFormData({
+        name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        phone: "",
+        role: "student",
+        is_active: true,
+      });
+      setShowPassword(false);
+    }
+  }, [isOpen, initialData]);
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {

@@ -55,6 +55,14 @@ def create_user():
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
+
+    # Crear perfil Trainer si el rol es 'trainer'
+    if role == "trainer":
+        from ..models import Trainers
+        new_trainer = Trainers(user_id=new_user.id)
+        db.session.add(new_trainer)
+        db.session.commit()
+
     return jsonify({"message": "Usuario creado exitosamente", "results": new_user.serialize()}), 201
 
 @user_routes.route('/<int:id>', methods=['GET'])

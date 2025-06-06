@@ -100,7 +100,10 @@ export const SessionsPage = () => {
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Todas las sesiones</h2>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setEditingSession(null);
+                setIsModalOpen(true);
+              }}
               className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90"
             >
               <div className="flex items-center gap-2 whitespace-nowrap">
