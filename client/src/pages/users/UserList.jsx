@@ -23,7 +23,12 @@ export const UserList = () => {
       setLoading(true);
       try {
         const res = await getUsers();
-        setUsers(res.data.results);
+        setUsers(
+          res.data.results.sort((a, b) => {
+            if (a.is_active === b.is_active) return 0;
+            return a.is_active ? -1 : 1;
+          })
+        );
       } catch (err) {
         setError("Error al cargar usuarios");
       } finally {
@@ -65,7 +70,7 @@ export const UserList = () => {
                   <option value="">Todos</option>
                   <option value="admin">Administrador</option>
                   <option value="trainer">Entrenador</option>
-                  <option value="student">Estudiante</option>
+                  <option value="student">Alumno</option>
                 </select>
               </div>
               <div className="flex flex-col">
@@ -132,7 +137,7 @@ export const UserList = () => {
                     {{
                       admin: 'Administrador',
                       trainer: 'Entrenador',
-                      student: 'Estudiante'
+                      student: 'Alumno'
                     }[user.role] || user.role}
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -154,7 +159,12 @@ export const UserList = () => {
                           await updateUser(user.id, { ...user, is_active: !user.is_active });
                           toast.success(`Usuario ${user.is_active ? 'desactivado' : 'activado'} correctamente`);
                           const res = await getUsers();
-                          setUsers(res.data.results);
+                          setUsers(
+                            res.data.results.sort((a, b) => {
+                              if (a.is_active === b.is_active) return 0;
+                              return a.is_active ? -1 : 1;
+                            })
+                          );
                         } catch (err) {
                           console.error("Error al cambiar estado del usuario", err);
                           toast.error("Error al cambiar estado del usuario");

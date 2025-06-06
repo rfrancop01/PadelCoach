@@ -11,7 +11,7 @@ import {
 
 const icons = {
   Usuarios: <UsersIcon className="text-primary h-8 w-8" />,
-  Estudiantes: <UserIcon className="text-green-500 h-8 w-8" />,
+  Alumnos: <UserIcon className="text-green-500 h-8 w-8" />,
   Entrenadores: <UserIcon className="text-yellow-500 h-8 w-8" />,
   Sesiones: <CalendarIcon className="text-blue-500 h-8 w-8" />,
   Pistas: <LayoutIcon className="text-pink-500 h-8 w-8" />,

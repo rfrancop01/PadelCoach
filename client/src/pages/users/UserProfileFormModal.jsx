@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { toast } from 'react-toastify';
 
 export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState({
@@ -7,6 +10,7 @@ export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) =
         phone: "",
         age: "",
         photo: null,
+        remove_photo: false,
     });
 
     useEffect(() => {
@@ -17,6 +21,7 @@ export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) =
                 phone: initialData.phone || "",
                 age: initialData.age !== undefined ? initialData.age : "",
                 photo: null,
+                remove_photo: false,
             });
         } else {
             setFormData({
@@ -25,6 +30,7 @@ export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) =
                 phone: "",
                 age: "",
                 photo: null,
+                remove_photo: false,
             });
         }
     }, [initialData]);
@@ -52,17 +58,33 @@ export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) =
             data.append("photo", formData.photo);
         }
 
-        for (let [key, value] of data.entries()) {
-            console.log(`${key}:`, value);
+        if (formData.remove_photo) {
+            data.append("remove_photo", "true");
         }
 
-        console.log('Submitting FormData');
+        for (let [key, value] of data.entries()) {
+        }
         onSave(data);
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+        >
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+                    title="Cerrar"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
                 <h2 className="text-xl font-bold mb-4">
                     {initialData ? "Editar perfil" : "Actualizar datos"}
                 </h2>
@@ -113,13 +135,50 @@ export const UserProfileFormModal = ({ isOpen, onClose, onSave, initialData }) =
                     </div>
                     <div>
                         <label className="block text-sm text-gray-800 font-semibold">Foto de perfil (archivo, opcional)</label>
-                        <input
-                            type="file"
-                            name="photo"
-                            accept="image/*"
-                            onChange={(e) => setFormData((prev) => ({ ...prev, photo: e.target.files[0] }))}
-                            className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primaryLight"
-                        />
+                        {(!initialData?.photo_url || formData.remove_photo) && (
+                            <input
+                                type="file"
+                                name="photo"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file && file.name !== "placeholder150") {
+                                        setFormData((prev) => ({ ...prev, photo: file }));
+                                    }
+                                }}
+                                className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primaryLight"
+                            />
+                        )}
+                        {initialData?.photo_url && !formData.remove_photo && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="text-sm text-gray-600">Imagen cargada</span>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        confirmAlert({
+                                            title: '¿Eliminar imagen?',
+                                            message: '¿Estás seguro que deseas eliminar la imagen de perfil?',
+                                            buttons: [
+                                                {
+                                                    label: 'Sí',
+                                                    onClick: () => {
+                                                        setFormData((prev) => ({ ...prev, remove_photo: true, photo: null }));
+                                                        toast.success("Imagen eliminada correctamente");
+                                                    },
+                                                },
+                                                {
+                                                    label: 'Cancelar',
+                                                },
+                                            ],
+                                        })
+                                    }
+                                    className="text-red-600 hover:text-red-800 text-sm"
+                                    title="Eliminar foto actual"
+                                >
+                                    ❌
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className="flex justify-end space-x-2 pt-4">
                         <button

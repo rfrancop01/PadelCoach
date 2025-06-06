@@ -32,7 +32,7 @@ class Users(db.Model):
             'last_name': self.last_name,
             'email': self.email,
             'phone': self.phone,
-            'photo_url': self.photo_url or "https://via.placeholder.com/150",
+            'photo_url': self.photo_url,
             'role': self.role,
             'is_active': self.is_active,
             'created_at': self.created_at.strftime("%d/%m/%Y %H:%M") if self.created_at else None,
@@ -50,7 +50,7 @@ class Users(db.Model):
 
 class Students(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    level = db.Column(db.Enum('Primera', 'Segunda', 'Tercera', 'Cuarta', 'Iniciación', 'Competición', name='level_enum'), nullable=False)  # Nivel del estudiante
+    level = db.Column(db.Enum('Primera', 'Segunda', 'Tercera', 'Cuarta', 'Iniciación', 'Competición', name='level_enum'), nullable=False)  # Nivel del alumno
     student_associations = db.relationship(
         'SessionsStudents',
         back_populates='student',

@@ -65,7 +65,7 @@ export const AdminDashboard = () => {
         const roleLabels = {
           admin: 'Administrador',
           trainer: 'Entrenador',
-          student: 'Estudiante',
+          student: 'Alumno',
         };
 
         const roleData = Object.entries(rolesCount).map(([role, value]) => ({
@@ -100,7 +100,7 @@ export const AdminDashboard = () => {
 
   const labelMap = {
     users: 'Usuarios',
-    students: 'Estudiantes',
+    students: 'Alumnos',
     trainers: 'Entrenadores',
     sessions: 'Sesiones',
     courts: 'Pistas',
@@ -120,9 +120,9 @@ export const AdminDashboard = () => {
             <span role="img" aria-label="Usuarios"></span>
             <span>Gestionar Usuarios</span>
           </a>
-          <a href="/admin/sessions" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+          <a href="/sessions" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Sesiones"></span>
-            <span>Ver Sesiones</span>
+            <span>Gestionar Sesiones</span>
           </a>
           <a href="/admin/trainers" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Entrenadores"></span>

@@ -15,7 +15,7 @@ def list_students():
 
     students = db.session.execute(db.select(Students)).scalars()
     result = [s.serialize() for s in students]
-    return jsonify({"message": "Lista de estudiantes", "results": result}), 200
+    return jsonify({"message": "Lista de Alumnos", "results": result}), 200
 
 @student_routes.route('/', methods=['POST'])
 @jwt_required()
@@ -28,10 +28,10 @@ def create_student():
     user_id = data.get("user_id")
     if not level or not user_id:
         return jsonify({"message": "level and user_id are required"}), 400
-    # Validar si el user_id ya está asociado a un estudiante
+    # Validar si el user_id ya está asociado a un alumno
     existing_student = db.session.scalar(db.select(Students).where(Students.user_id == user_id))
     if existing_student:
-        return jsonify({"message": "Este usuario ya está registrado como estudiante"}), 409
+        return jsonify({"message": "Este usuario ya está registrado como alumno"}), 409
     new_student = Students(level=level, user_id=user_id)
     db.session.add(new_student)
     db.session.commit()

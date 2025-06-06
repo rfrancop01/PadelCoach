@@ -15,6 +15,7 @@ import { StudentDetail } from "./pages/students/StudentDetail";
 import { CourtList } from "./pages/courts/CourtList";
 import { CourtDetail } from "./pages/courts/CourtDetail";
 import { SessionList } from "./pages/sessions/SessionList";
+import { SessionsPage } from "./pages/sessions/SessionsPage";
 import { SessionDetail } from "./pages/sessions/SessionDetail";
 import { TrainerList } from "./pages/trainers/TrainerList";
 import { TrainerDetail } from "./pages/trainers/TrainerDetail";
@@ -58,7 +59,7 @@ export default function AppRoutes() {
           <Route path="/courts/:id" element={<CourtDetail />} />
 
           {/* Shared for trainer and student */}
-          <Route path="/sessions" element={<SessionList />} />
+          <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/sessions/:id" element={<SessionDetail />} />
         </Route>
 

@@ -23,7 +23,7 @@ def list_session_students():
         ).scalars()
 
     result = [ss.serialize() for ss in ss_records]
-    return jsonify({"message": "Lista de sesiones-estudiantes", "results": result}), 200
+    return jsonify({"message": "Lista de sesiones-alumnos", "results": result}), 200
 
 @session_student_routes.route('/', methods=['POST'])
 @jwt_required()

@@ -31,25 +31,27 @@ export const TrainerList = () => {
         is_active: !trainer.user?.is_active
       });
       toast.success(`Entrenador ${!trainer.user?.is_active ? 'desactivado' : 'activado'} correctamente`);
-      fetchTrainers();
+      await fetchTrainers();
     } catch (err) {
       console.error("Error al actualizar estado del entrenador", err);
       toast.error("Error al actualizar estado del entrenador");
     }
   };
 
-  const filtered = trainers.filter(trainer => {
-    const name = trainer.user?.name?.toLowerCase() || "";
-    const lastName = trainer.user?.last_name?.toLowerCase() || "";
-    const matchesSearch = `${name} ${lastName}`.includes(searchTerm.toLowerCase());
-    const matchesActive =
-      filterActive === ""
-        ? true
-        : filterActive === "true"
-        ? trainer.user?.is_active === true
-        : trainer.user?.is_active === false;
-    return matchesSearch && matchesActive;
-  });
+  const filtered = trainers
+    .sort((a, b) => (a.user?.is_active === b.user?.is_active ? 0 : a.user?.is_active ? -1 : 1))
+    .filter(trainer => {
+      const name = trainer.user?.name?.toLowerCase() || "";
+      const lastName = trainer.user?.last_name?.toLowerCase() || "";
+      const matchesSearch = `${name} ${lastName}`.includes(searchTerm.toLowerCase());
+      const matchesActive =
+        filterActive === ""
+          ? true
+          : filterActive === "true"
+          ? trainer.user?.is_active === true
+          : trainer.user?.is_active === false;
+      return matchesSearch && matchesActive;
+    });
 
   return (
     <div className="space-y-12">

@@ -20,7 +20,7 @@ export const Dashboard = () => {
             {/* Aquí podrías añadir más secciones dependiendo del rol */}
             {user.role === "admin" && <p>Bienvenido, administrador. Aquí puedes gestionar todo.</p>}
             {user.role === "trainer" && <p>Bienvenido, entrenador. Aquí están tus sesiones y materiales.</p>}
-            {user.role === "student" && <p>Bienvenido, estudiante. Aquí están tus próximas sesiones y progreso.</p>}
+            {user.role === "student" && <p>Bienvenido, alumno. Aquí están tus próximas sesiones y progreso.</p>}
           </div>
         ) : (
           <p>Cargando información del usuario...</p>

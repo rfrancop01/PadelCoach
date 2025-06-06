@@ -7,6 +7,7 @@ from .. import db
 import os
 from werkzeug.utils import secure_filename
 from flask import current_app
+import uuid
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -66,7 +67,10 @@ def get_user(id):
         return jsonify({"message": "User not found"}), 404
     if claims.get("role") != "admin" and user.id != current_user_id:
         return jsonify({"message": "Unauthorized access"}), 403
-    return jsonify({"message": f"User {id} found", "results": user.serialize()}), 200
+    result = user.serialize()
+    if user.photo_url:
+        result["photo_url"] = url_for("uploaded_file", filename=user.photo_url, _external=True)
+    return jsonify({"message": f"User {id} found", "results": result}), 200
 
 
 @user_routes.route("/<int:id>", methods=["PUT"])
@@ -90,9 +94,10 @@ def update_user(id):
     user.name = data.get("name", user.name)
     user.last_name = data.get("last_name", user.last_name)
     user.phone = data.get("phone", user.phone)
-    if "age" in data:
+    age_value = data.get("age")
+    if age_value not in (None, "", "null"):
         try:
-            user.age = int(data["age"])
+            user.age = int(age_value)
         except (ValueError, TypeError):
             return jsonify({"message": "Edad inválida"}), 400
     if "is_active" in data and user.id != current_user_id:
@@ -106,17 +111,26 @@ def update_user(id):
     # Procesar archivo de foto si viene en form-data
     photo_file = request.files.get("photo")
     if photo_file and photo_file.filename != "":
-        filename = f"user_{user.id}_" + secure_filename(photo_file.filename)
+        unique_id = uuid.uuid4().hex
+        filename = f"user_{user.id}_{unique_id}_" + secure_filename(photo_file.filename)
         save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
         photo_file.save(save_path)
         user.photo_url = filename
+
+    # Si se solicita eliminar la foto
+    if data.get("remove_photo") == "true":
+        if user.photo_url:
+            photo_path = os.path.join(current_app.config["UPLOAD_FOLDER"], user.photo_url)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+            user.photo_url = None
 
     db.session.commit()
 
     # Construir respuesta JSON, incluyendo URL pública de la foto
     result = user.serialize()
     if user.photo_url:
-        result["photo_url"] = url_for("uploaded_file", filename=user.photo_url)
+        result["photo_url"] = url_for("uploaded_file", filename=user.photo_url, _external=True)
     return jsonify({"message": f"User {id} updated successfully", "results": result}), 200
 
 @user_routes.route('/<int:id>', methods=['DELETE'])
@@ -176,6 +190,6 @@ def get_available_students():
     ).scalars().all()
 
     return jsonify({
-        "message": "Usuarios disponibles para asignar como estudiantes",
+        "message": "Usuarios disponibles para asignar como alumnos",
         "results": [user.serialize() for user in available_users]
     }), 200

@@ -20,7 +20,12 @@ export const StudentList = () => {
   const fetchStudents = async () => {
     try {
       const res = await getStudents();
-      setStudents(res.data.results);
+      // Ordenar para que los activos aparezcan primero
+      const orderedStudents = res.data.results.sort((a, b) => {
+        if (a.user?.is_active === b.user?.is_active) return 0;
+        return a.user?.is_active ? -1 : 1;
+      });
+      setStudents(orderedStudents);
     } catch (err) {
       console.error("Error al cargar alumnos", err);
       toast.error("Error al cargar alumnos");
@@ -37,11 +42,17 @@ export const StudentList = () => {
         phone: student.user?.phone,
         level: student.level,
       });
-      toast.success(`Estudiante ${!student.user?.is_active ? 'desactivado' : 'activado'} correctamente`);
-      fetchStudents();
+      toast.success(`Alumno ${!student.user?.is_active ? 'activado' : 'desactivado'} correctamente`);
+      const res = await getStudents();
+      // Ordenar para que los activos aparezcan primero
+      const orderedStudents = res.data.results.sort((a, b) => {
+        if (a.user?.is_active === b.user?.is_active) return 0;
+        return a.user?.is_active ? -1 : 1;
+      });
+      setStudents(orderedStudents);
     } catch (err) {
-      console.error("Error al actualizar estado del estudiante", err);
-      toast.error("Error al actualizar estado del estudiante");
+      console.error("Error al actualizar estado del alumno", err);
+      toast.error("Error al actualizar estado del alumno");
     }
   };
 
@@ -50,7 +61,12 @@ export const StudentList = () => {
     const fetchAvailableUsers = async () => {
       try {
         const res = await getAvailableStudentUsers();
-        setAvailableUsers(res.data.results);
+        // Ordenar disponibles activos primero también si aplica
+        const orderedAvailable = res.data.results.sort((a, b) => {
+          if (a.is_active === b.is_active) return 0;
+          return a.is_active ? -1 : 1;
+        });
+        setAvailableUsers(orderedAvailable);
       } catch (err) {
         console.error("Error al obtener usuarios disponibles:", err);
         toast.error("Error al obtener usuarios disponibles");
@@ -62,7 +78,7 @@ export const StudentList = () => {
   const handleAssignLevel = (userId, level) => {
     confirmAlert({
       title: 'Asignar Nivel',
-      message: '¿Estás seguro de asignar este nivel al estudiante?',
+      message: '¿Estás seguro de asignar este nivel al alumno?',
       buttons: [
         {
           label: 'Sí',
@@ -138,7 +154,7 @@ export const StudentList = () => {
           </div>
         </div>
 
-        {/* Filtrado de estudiantes */}
+        {/* Filtrado de alumnos */}
         {(() => {
           const filteredStudents = students.filter(student => {
             const nameMatch = searchTerm === "" ||
@@ -262,16 +278,16 @@ export const StudentList = () => {
           try {
             if (selectedStudent) {
               await updateStudent(selectedStudent.id, data);
-              toast.success("Estudiante actualizado correctamente");
+              toast.success("Alumno actualizado correctamente");
             } else {
               await createStudent(data);
-              toast.success("Estudiante creado correctamente");
+              toast.success("Alumno creado correctamente");
             }
             fetchStudents();
             setIsModalOpen(false);
           } catch (err) {
-            console.error("Error al guardar estudiante:", err);
-            toast.error("Error al guardar estudiante");
+            console.error("Error al guardar alumno:", err);
+            toast.error("Error al guardar alumno");
           }
         }}
         initialData={selectedStudent}

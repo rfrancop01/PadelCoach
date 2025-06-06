@@ -66,7 +66,7 @@ export const Home = () => {
                         },
                         {
                             title: "Gestión de usuarios y roles",
-                            description: "Administra usuarios, estudiantes y entrenadores con permisos diferenciados para cada rol."
+                            description: "Administra usuarios, alumnos y entrenadores con permisos diferenciados para cada rol."
                         }
                     ].map(({ title, description }) => (
                         <div

@@ -64,23 +64,23 @@ export const UserProfile = () => {
                   fallback.innerText = `${user.name?.charAt(0).toUpperCase() || ''}${user.last_name?.charAt(0).toUpperCase() || ''}`;
                   e.target.parentNode.appendChild(fallback);
                 }}
-                className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto object-cover ${
+                className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto object-cover transition duration-300 ease-in-out ${
                   user.is_active ? "ring-green-400" : "ring-red-400"
                 }`}
               />
             ) : (
               <div
-                className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto flex items-center justify-center text-6xl font-semibold tracking-wide ${
+                className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto flex items-center justify-center text-5xl font-bold ${
                   user.is_active ? "ring-green-400" : "ring-red-400"
                 } ${
                   user.role === "admin"
                     ? "bg-gray-200 text-gray-800"
                     : user.role === "trainer"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-green-100 text-green-800"
+                    ? "bg-blue-200 text-blue-800"
+                    : "bg-green-200 text-green-800"
                 }`}
               >
-                {`${user.name?.charAt(0).toUpperCase() || ''}${user.last_name?.charAt(0).toUpperCase() || ''}`}
+                {user.name?.charAt(0).toUpperCase()}{user.last_name?.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
