@@ -26,3 +26,20 @@ client/build/
 
 # Archivos de configuración locales
 docker-compose.override.yml
+
+# Alembic / Flask-Migrate
+server/migrations/
+!server/migrations/versions/
+!server/migrations/env.py
+!server/migrations/script.py.mako
+!server/migrations/README
+
+# Archivos de migración auto-generados
+server/migrations/versions/*.pyc
+server/migrations/versions/__pycache__/
+
+# Archivos temporales de desarrollo
+*.swp
+*.swo
+*.bak
+*.tmp

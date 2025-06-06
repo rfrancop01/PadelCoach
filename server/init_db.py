@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 from app import db
@@ -6,10 +7,15 @@ from app import create_app
 
 app = create_app()
 
-def run_upgrade():
-    print("[init_db.py] Ejecutando upgrade...")
-    subprocess.run([sys.executable, '-m', 'flask', 'db', 'upgrade'], check=True)
-    print("[init_db.py] Upgrade completado.")
+def run_migrations_if_needed():
+    if not os.path.exists("migrations"):
+        print("[init_db.py] No se encontró carpeta de migraciones. Creando y aplicando migración inicial...")
+        subprocess.run([sys.executable, "-m", "flask", "db", "init"], check=True)
+        subprocess.run([sys.executable, "-m", "flask", "db", "migrate", "-m", "Initial migration"], check=True)
+    else:
+        print("[init_db.py] Carpeta de migraciones encontrada. Ejecutando upgrade...")
+    subprocess.run([sys.executable, "-m", "flask", "db", "upgrade"], check=True)
+    print("[init_db.py] Migraciones aplicadas.")
 
 def ensure_admin():
     with app.app_context():
@@ -33,6 +39,6 @@ def ensure_admin():
 
 if __name__ == "__main__":
     print("[init_db.py] Inicio de inicialización...")
-    run_upgrade()
+    run_migrations_if_needed()
     ensure_admin()
     print("[init_db.py] Inicialización finalizada.")
