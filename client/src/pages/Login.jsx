@@ -40,12 +40,19 @@ export const Login = () => {
 
     try {
       const result = await login({ email, password });
+
       if (result.success) {
-        const role = result.user?.role || result.user?.role || (result.user ? result.user.role : null);
+        console.log("Usuario logueado:", result.user);
+        const role = result.user?.role;
+
         if (role === "admin") {
           navigate("/admin");
+        } else if (role === "trainer") {
+          navigate("/dashboard/trainer");
+        } else if (role === "student") {
+          navigate("/dashboard/student");
         } else {
-          navigate("/dashboard");
+          navigate("/");
         }
       } else {
         setError(result.message || "Credenciales inválidas.");

@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import { useContext } from 'react'
+
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
@@ -120,3 +122,5 @@ const login = async (credentials) => {
     </AuthContext.Provider>
   )
 }
+
+export const useAuth = () => useContext(AuthContext)

@@ -3,6 +3,7 @@ import { CalendarDays, Clock, MapPin, Signal } from "lucide-react";
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { StudentTooltipAvatar } from './StudentTooltipAvatar';
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../context/AuthContext";
 
 const avatarColors = [
   "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
@@ -20,6 +21,7 @@ const getTextColor = (bgColor) => {
 
 const SessionCard = ({ session, onEdit, onDelete }) => {
   const { date, time, trainer, court, students = [] } = session;
+  const { user } = useAuth();
 
   return (
     <Tooltip.Provider delayDuration={200}>
@@ -34,50 +36,52 @@ const SessionCard = ({ session, onEdit, onDelete }) => {
               {students[0].level}
             </div>
           )}
-          <div className="flex space-x-2">
-            <Tooltip.Root>
-              <Tooltip.Trigger asChild>
-                <button
-                  onClick={onEdit}
-                  className="text-white hover:text-blue-400 text-sm"
-                >
-                  <PencilIcon className="w-4 h-4" />
-                </button>
-              </Tooltip.Trigger>
-              <Tooltip.Portal>
-                <Tooltip.Content
-                  side="top"
-                  align="center"
-                  sideOffset={5}
-                  className="z-50 px-2 py-1 bg-white rounded shadow text-xs text-zinc-800"
-                >
-                  Editar sesión
-                  <Tooltip.Arrow className="fill-white" />
-                </Tooltip.Content>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-            <Tooltip.Root>
-              <Tooltip.Trigger asChild>
-                <button
-                  onClick={onDelete}
-                  className="text-white hover:text-red-500 text-sm"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </button>
-              </Tooltip.Trigger>
-              <Tooltip.Portal>
-                <Tooltip.Content
-                  side="top"
-                  align="center"
-                  sideOffset={5}
-                  className="z-50 px-2 py-1 bg-white rounded shadow text-xs text-zinc-800"
-                >
-                  Eliminar sesión
-                  <Tooltip.Arrow className="fill-white" />
-                </Tooltip.Content>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
+          {user?.role === 'admin' && (
+            <div className="flex space-x-2">
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    onClick={onEdit}
+                    className="text-white hover:text-blue-400 text-sm"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="top"
+                    align="center"
+                    sideOffset={5}
+                    className="z-50 px-2 py-1 bg-white rounded shadow text-xs text-zinc-800"
+                  >
+                    Editar sesión
+                    <Tooltip.Arrow className="fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <button
+                    onClick={onDelete}
+                    className="text-white hover:text-red-500 text-sm"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    side="top"
+                    align="center"
+                    sideOffset={5}
+                    className="z-50 px-2 py-1 bg-white rounded shadow text-xs text-zinc-800"
+                  >
+                    Eliminar sesión
+                    <Tooltip.Arrow className="fill-white" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </div>
+          )}
         </div>
         <div className="text-sm text-zinc-600 dark:text-zinc-300 mb-1 flex items-center gap-2">
           <CalendarDays className="w-4 h-4" />

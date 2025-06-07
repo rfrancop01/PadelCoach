@@ -120,8 +120,9 @@ class Sessions(db.Model):
     trainer_id = db.Column(db.Integer, db.ForeignKey('trainers.id'), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     time = db.Column(db.String(5), nullable=False)  # Hora en formato 'HH:MM'
-    notes = db.Column(db.String(255), nullable=True)  # Notas del entrenador sobre la sesión
+    notes = db.Column(db.String(255), nullable=True)
     court_id = db.Column(db.Integer, db.ForeignKey('courts.id'), nullable=False)
+
     session_associations = db.relationship(
         'SessionsStudents',
         back_populates='session',
@@ -139,14 +140,34 @@ class Sessions(db.Model):
         return f'<Session {self.id} {self.date} {self.time}>'
 
     def serialize(self):
+        from app.models import Courts, Users, Trainers, Students, SessionsStudents
+        from app import db
+
+        court = db.session.get(Courts, self.court_id)
+        trainer = db.session.get(Users, db.session.get(Trainers, self.trainer_id).user_id)
+
+        associations = db.session.execute(
+            db.select(SessionsStudents).where(SessionsStudents.session_id == self.id)
+        ).scalars()
+        students_list = []
+        for assoc in associations:
+            student = db.session.get(Students, assoc.student_id)
+            if student:
+                user = db.session.get(Users, student.user_id)
+                student_data = student.serialize()
+                student_data['user'] = user.serialize() if user else None
+                student_data.pop('user_id', None)
+                student_data.pop('is_active', None)
+                students_list.append(student_data)
+
         return {
             'id': self.id,
-            'trainer_id': self.trainer_id,
-            'date': self.date.strftime("%d/%m/%Y %H:%M") if self.date else None,
+            'date': self.date.strftime("%d/%m/%Y") if self.date else None,
             'time': self.time,
-            'court_id': self.court_id,
-            'court_name': self.court.name if self.court else None,
-            'notes': self.notes
+            'notes': self.notes,
+            'court': court.serialize() if court else None,
+            'trainer': trainer.serialize() if trainer else None,
+            'students': students_list
         }
 
 class SessionsStudents(db.Model):

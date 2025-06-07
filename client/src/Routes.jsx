@@ -10,6 +10,8 @@ import { Profile } from "./pages/Profile";
 import { RequestReset } from "./pages/password-reset/RequestReset";
 import { ResetPassword } from "./pages/password-reset/ResetPassword";
 import { Dashboard } from "./pages/Dashboard";
+import { TrainerDashboard } from "./pages/dashboard/TrainerDashboard";
+import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 import { StudentList } from "./pages/students/StudentList";
 import { StudentDetail } from "./pages/students/StudentDetail";
 import { CourtList } from "./pages/courts/CourtList";
@@ -25,6 +27,7 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { TrainingPlanList } from "./pages/trainingplans/TrainingPlanList";
 import { UserList } from "./pages/users/UserList";
 import { UserProfile } from "./pages/users/UserProfile";
+import { About } from "./pages/About";
 
 export default function AppRoutes() {
   return (
@@ -32,6 +35,7 @@ export default function AppRoutes() {
       <Route element={<Layout />}>
         {/* Home route */}
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
 
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
@@ -42,6 +46,8 @@ export default function AppRoutes() {
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/trainer" element={<TrainerDashboard />} />
+          <Route path="/dashboard/student" element={<StudentDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* Admin-only routes */}
           <Route path="/admin/users" element={<UserList />} />

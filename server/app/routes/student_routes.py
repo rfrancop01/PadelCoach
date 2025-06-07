@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt, get_jwt_identity
 from ..models import Students, Users
+from ..models import Sessions, SessionsStudents
 from .. import db
 
 student_routes = Blueprint('student_routes', __name__)
@@ -57,7 +58,6 @@ def get_student(id):
     result = {
         "id": student.id,
         "level": student.level,
-        "age": student.age,
         "user_id": student.user_id,
         "name": user.name,
         "last_name": user.last_name,
@@ -113,3 +113,51 @@ def delete_student(id):
 
     db.session.commit()
     return jsonify({"message": f"Student {id} deactivated successfully"}), 200
+
+
+# Endpoint para obtener las sesiones de un estudiante
+
+
+@student_routes.route('/<int:id>/sessions', methods=['GET'])
+@jwt_required()
+def get_student_sessions(id):
+    claims = get_jwt()
+    current_user_id = claims.get("user_id")
+    role = claims.get("role")
+
+    student = db.session.get(Students, id)
+    if not student:
+        return jsonify({"message": "Student not found"}), 404
+    if role != "admin" and student.user_id != current_user_id:
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    session_links = db.session.execute(
+        db.select(SessionsStudents.session_id).where(SessionsStudents.student_id == id)
+    ).scalars().all()
+
+    sessions = db.session.execute(
+        db.select(Sessions).where(Sessions.id.in_(session_links))
+    ).scalars().all()
+
+    result = [s.serialize() for s in sessions]
+
+    return jsonify({"message": f"Sesiones del estudiante {id}", "results": result}), 200
+
+@student_routes.route('/by_user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_student_by_user(user_id):
+    claims = get_jwt()
+    role = claims.get("role")
+    current_user_id = claims.get("user_id")
+
+    if role != "admin" and user_id != current_user_id:
+        return jsonify({"message": "Usuario no autorizado"}), 403
+
+    student = db.session.scalar(db.select(Students).where(Students.user_id == user_id))
+    if not student:
+        return jsonify({"message": "Student not found"}), 404
+
+    return jsonify({
+        "message": f"Student {student.id} found",
+        "results": student.serialize()
+    }), 200

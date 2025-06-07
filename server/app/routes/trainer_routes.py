@@ -81,3 +81,18 @@ def delete_trainer(id):
         user.is_active = False
     db.session.commit()
     return jsonify({"message": f"Trainer {id} deactivated successfully"}), 200
+
+@trainer_routes.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_trainer_by_user_id(user_id):
+    trainer = db.session.execute(
+        db.select(Trainers).where(Trainers.user_id == user_id)
+    ).scalar_one_or_none()
+
+    if not trainer:
+        return jsonify({"message": "Trainer not found"}), 404
+
+    return jsonify({
+        "message": f"Trainer {trainer.id} found",
+        "results": trainer.serialize()
+    }), 200
