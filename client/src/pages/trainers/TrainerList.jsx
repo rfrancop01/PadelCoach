@@ -108,7 +108,6 @@ export const TrainerList = () => {
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={() => {
-                        console.log("Abriendo modal con:", trainer); // Para depurar
                         setSelectedTrainer(trainer);
                         setIsModalOpen(true);
                       }}

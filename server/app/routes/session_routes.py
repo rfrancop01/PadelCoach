@@ -318,14 +318,17 @@ def sessions_by_user(user_id):
 
     result = []
     for session in sessions:
+        trainer_obj = db.session.get(Trainers, session.trainer_id)
+        trainer_user = db.session.get(Users, trainer_obj.user_id) if trainer_obj else None
         data = {
             "id": session.id,
             "date": session.date.strftime("%d/%m/%Y") if session.date else None,
             "time": session.time if isinstance(session.time, str) else session.time.strftime("%H:%M") if session.time else None,
             "notes": session.notes,
             "court": db.session.get(Courts, session.court_id).serialize() if session.court_id else None,
-            "trainer": db.session.get(Users, session.trainer_id).serialize() if session.trainer_id else None
+            "trainer": trainer_user.serialize() if trainer_user else None
         }
+
         associations = db.session.execute(
             db.select(SessionsStudents).where(SessionsStudents.session_id == session.id)
         ).scalars()
@@ -370,13 +373,15 @@ def sessions_by_trainer(trainer_id):
     
     result = []
     for session in sessions:
+        trainer_obj = db.session.get(Trainers, session.trainer_id)
+        trainer_user = db.session.get(Users, trainer_obj.user_id) if trainer_obj else None
         data = {
             "id": session.id,
             "date": session.date.strftime("%d/%m/%Y") if session.date else None,
             "time": session.time if isinstance(session.time, str) else session.time.strftime("%H:%M") if session.time else None,
             "notes": session.notes,
             "court": db.session.get(Courts, session.court_id).serialize() if session.court_id else None,
-            "trainer": db.session.get(Users, session.trainer_id).serialize() if session.trainer_id else None
+            "trainer": trainer_user.serialize() if trainer_user else None
         }
         associations = db.session.execute(
             db.select(SessionsStudents).where(SessionsStudents.session_id == session.id)

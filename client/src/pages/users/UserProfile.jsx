@@ -31,11 +31,12 @@ export const UserProfile = () => {
 
   return (
     <div className="flex justify-center items-center mt-20 px-4">
-      <div className="rounded-2xl shadow-lg max-w-md w-full p-8 border border-gray-100 bg-white relative text-center">
+      <div className="max-w-2xl w-full bg-white bg-opacity-80 rounded-xl shadow-xl p-8 space-y-6">
+        <div className="relative text-center space-y-6">
         {user.id === JSON.parse(localStorage.getItem("user"))?.id && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 text-sm bg-accent text-gray-900 rounded hover:brightness-110 transition"
+            className="absolute top-[-12px] right-[-12px] flex items-center gap-1 px-3 py-1 text-sm bg-accent text-gray-900 rounded hover:brightness-110 transition"
             aria-label="Editar perfil"
           >
             <PencilIcon className="h-4 w-4" />
@@ -85,7 +86,13 @@ export const UserProfile = () => {
             )}
           </div>
           <h2 className="text-2xl font-bold text-slate-900">{user.name} {user.last_name}</h2>
-          <p className="text-base text-gray-500 capitalize">{user.role}</p>
+          <p className="text-base text-gray-700 font-medium capitalize">
+            {user.role === "student" ? "Alumno" :
+             user.role === "trainer" ? "Entrenador" :
+             user.role === "admin" ? "Administrador" :
+             user.role}
+          </p>
+          <hr className="border-t border-gray-500/40 w-1/2 mx-auto mt-3 mb-1" />
         </div>
 
         <div className="flex flex-col items-center space-y-4 text-base">
@@ -101,6 +108,7 @@ export const UserProfile = () => {
             <CakeIcon className="h-5 w-5 text-slate-500" />
             <span>{user.age || "—"}</span>
           </div>
+        </div>
         </div>
       </div>
       <UserProfileFormModal

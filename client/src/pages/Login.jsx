@@ -42,7 +42,6 @@ export const Login = () => {
       const result = await login({ email, password });
 
       if (result.success) {
-        console.log("Usuario logueado:", result.user);
         const role = result.user?.role;
 
         if (role === "admin") {

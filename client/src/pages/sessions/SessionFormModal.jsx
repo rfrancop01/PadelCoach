@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { createSession, updateSession, getSessionsByTrainer } from "../../api/sessions"; // Solo lo que usas
 import { getCourts } from "../../api/courts";
 import { getStudents } from "../../api/students";
@@ -9,6 +10,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const SessionFormModal = ({ isOpen, onClose, onSave, sessionToEdit }) => {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     date: "",
     time: "",
@@ -25,31 +27,35 @@ const SessionFormModal = ({ isOpen, onClose, onSave, sessionToEdit }) => {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [studentSearch, setStudentSearch] = useState("");
 
-  // Cargo pistas y entrenadores solo una vez (no cada sessionToEdit)
+  // Cargo pistas y entrenadores solo si el modal está abierto y el usuario es admin
   useEffect(() => {
-    getCourts().then(res => setCourts(res.data.results));
-    getTrainers().then(res => {
-      const formatted = res.data.results.map(t => ({
-        id: t.id,
-        user_id: t.user?.id,
-        name: t.user?.name || '',
-        last_name: t.user?.last_name || ''
-      }));
-      setTrainers(formatted);
-    });
-  }, []);
+    if (isOpen && user?.role === 'admin') {
+      getCourts().then(res => setCourts(res.data.results));
+      getTrainers().then(res => {
+        const formatted = res.data.results.map(t => ({
+          id: t.id,
+          user_id: t.user?.id,
+          name: t.user?.name || '',
+          last_name: t.user?.last_name || ''
+        }));
+        setTrainers(formatted);
+      });
+    }
+  }, [isOpen, user?.role]);
 
   useEffect(() => {
-    getStudents().then(res => {
-      const formatted = res.data.results.map(s => ({
-        id: s.id,
-        level: s.level,
-        name: s.user?.name || "",
-        last_name: s.user?.last_name || ""
-      }));
-      setStudents(formatted);
-    });
-  }, []);
+    if (isOpen && user?.role === 'admin') {
+      getStudents().then(res => {
+        const formatted = res.data.results.map(s => ({
+          id: s.id,
+          level: s.level,
+          name: s.user?.name || "",
+          last_name: s.user?.last_name || ""
+        }));
+        setStudents(formatted);
+      });
+    }
+  }, [isOpen, user?.role]);
 
 useEffect(() => {
   if (sessionToEdit && trainers.length > 0) {

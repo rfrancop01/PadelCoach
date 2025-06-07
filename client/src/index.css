@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'react-calendar/dist/Calendar.css';
+
 /* Personalización del modal react-confirm-alert */
 .react-confirm-alert-overlay {
   background: rgba(0, 0, 0, 0.6) !important;
@@ -96,3 +98,39 @@
   }
 }
 
+.react-calendar__tile.highlight {
+  background: #2563eb !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+.react-calendar__tile--hasSession {
+  background: #e5e7eb !important; /* gray-200 */
+  color: #111827 !important;      /* gray-900 */
+  border-radius: 9999px;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.react-calendar__tile--hasSession:hover {
+  background:  rgb(143, 143, 143) !important; /* gray-200 */
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+.react-calendar__tile--now {
+  background: #2563eb !important; /* azul fuerte */
+  color: white !important;
+  border-radius: 9999px;
+  font-weight: bold;
+  box-shadow: 0 0 0 2px white inset;
+}
+
+.react-calendar__tile--now.react-calendar__tile--hasSession {
+  background: #2563eb !important; /* azul fuerte */
+  color: white !important;
+  border-radius: 9999px;
+  font-weight: bold;
+  box-shadow: 0 0 0 2px white inset;
+}

@@ -32,7 +32,6 @@ export const TrainerFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("onSave fired", formData);
     onSave({ ...formData });
   };
 
