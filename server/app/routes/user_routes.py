@@ -173,11 +173,11 @@ def upload_user_photo(id):
     if photo.filename == '':
         return jsonify({"message": "Nombre de archivo vacío"}), 400
 
-    filename = secure_filename(photo.filename)
+    filename = f"user_{user.id}_{uuid.uuid4().hex}{os.path.splitext(photo.filename)[1]}"
     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
     photo.save(file_path)
 
-    user.photo_url = f"/uploads/{filename}"
+    user.photo_url = filename
     db.session.commit()
 
     return jsonify({"message": "Foto actualizada correctamente", "results": user.serialize()}), 200

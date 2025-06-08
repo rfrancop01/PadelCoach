@@ -1,26 +1,35 @@
-import { api } from './index';
+ import { api } from './index';
 
 export const getTrainingPlans = async () => {
-  const response = await api.get('/trainingplans');
-  return response;
+  return await api.get('/trainingplans');
 };
 
 export const getTrainingPlanById = async (id) => {
-  const response = await api.get(`/trainingplans/${id}`);
-  return response;
+  return await api.get(`/trainingplans/${id}`);
 };
 
-export const createTrainingPlan = async (data) => {
-  const response = await api.post('/trainingplans', data);
-  return response;
+// data puede ser JSON o FormData
+// isFormData: boolean que indica si data es FormData para configurar axios
+export const createTrainingPlan = async (data, isFormData = false) => {
+  if (isFormData) {
+    return await api.post('/trainingplans', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  } else {
+    return await api.post('/trainingplans', data);
+  }
 };
 
-export const updateTrainingPlan = async (id, data) => {
-  const response = await api.put(`/trainingplans/${id}`, data);
-  return response;
+export const updateTrainingPlan = async (id, data, isFormData = false) => {
+  if (isFormData) {
+    return await api.put(`/trainingplans/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  } else {
+    return await api.put(`/trainingplans/${id}`, data);
+  }
 };
 
 export const deleteTrainingPlan = async (id) => {
-  const response = await api.delete(`/trainingplans/${id}`);
-  return response;
+  return await api.delete(`/trainingplans/${id}`);
 };

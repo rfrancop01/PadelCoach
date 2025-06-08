@@ -21,7 +21,7 @@ import { SessionsPage } from "./pages/sessions/SessionsPage";
 import { SessionDetail } from "./pages/sessions/SessionDetail";
 import { TrainerList } from "./pages/trainers/TrainerList";
 import { TrainerDetail } from "./pages/trainers/TrainerDetail";
-import { Invitations } from "./pages/invitations/Invitations";
+import { Invitations } from "./pages/invitations/Invitations.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { TrainingPlanList } from "./pages/trainingplans/TrainingPlanList";
@@ -41,7 +41,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/password-reset" element={<RequestReset />} />
-        <Route path="/password-reset/:token" element={<ResetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>

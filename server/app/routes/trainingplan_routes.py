@@ -1,11 +1,29 @@
 
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+from werkzeug.utils import secure_filename
+import os
 from flask_jwt_extended import jwt_required, get_jwt
+from flask import send_from_directory
+
 from ..models import TrainingPlan
 from .. import db
 
 trainingplan_routes = Blueprint('trainingplan_routes', __name__)
+
+ALLOWED_EXTENSIONS = {'pdf'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_file(file):
+    filename = secure_filename(file.filename)
+    upload_folder = os.path.join(current_app.root_path, 'uploads', 'trainingplans')
+    os.makedirs(upload_folder, exist_ok=True)
+    filepath = os.path.join(upload_folder, filename)
+    file.save(filepath)
+    # Devuelve la URL relativa para acceder al archivo desde el frontend
+    return f'/uploads/trainingplans/{filename}'
 
 @trainingplan_routes.route('/', methods=['GET'])
 @jwt_required()
@@ -26,12 +44,20 @@ def create_trainingplan():
     claims = get_jwt()
     if claims.get("role") != "admin":
         return jsonify({"message": "Usuario no autorizado"}), 403
-    data = request.json
+    title = request.form.get('title')
+    description = request.form.get('description')
+    file = request.files.get('file')
+
+    if not title or not file or not allowed_file(file.filename):
+        return jsonify({"message": "Título y archivo PDF son requeridos"}), 400
+
+    file_url = save_file(file)
+
     new_plan = TrainingPlan(
-        title=data['title'],
-        description=data['description'],
-        file_url=data['file_url'],
-        trainer_id=data['trainer_id']
+        title=title,
+        description=description,
+        file_url=file_url,
+        trainer_id=None
     )
     db.session.add(new_plan)
     db.session.commit()
@@ -62,11 +88,17 @@ def update_trainingplan(id):
     plan = db.session.get(TrainingPlan, id)
     if not plan:
         return jsonify({"message": "Training Plan no encontrado"}), 404
-    data = request.json
-    plan.title = data.get('title', plan.title)
-    plan.description = data.get('description', plan.description)
-    plan.file_url = data.get('file_url', plan.file_url)
-    plan.trainer_id = data.get('trainer_id', plan.trainer_id)
+
+    title = request.form.get('title', plan.title)
+    description = request.form.get('description', plan.description)
+    file = request.files.get('file')
+
+    plan.title = title
+    plan.description = description
+    if file and allowed_file(file.filename):
+        plan.file_url = save_file(file)
+    plan.trainer_id = None
+
     db.session.commit()
     return jsonify(plan.serialize()), 200
 

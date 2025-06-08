@@ -223,7 +223,7 @@ class TrainingPlan(db.Model):
     __tablename__ = 'training_plans'
 
     id = db.Column(db.Integer, primary_key=True)
-    trainer_id = db.Column(db.Integer, db.ForeignKey('trainers.id'), nullable=False)
+    trainer_id = db.Column(db.Integer, db.ForeignKey('trainers.id'), nullable=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
     file_url = db.Column(db.String(255), nullable=False)  # URL to the uploaded plan file
@@ -235,7 +235,8 @@ class TrainingPlan(db.Model):
 
     trainer = db.relationship(
         'Trainers',
-        back_populates='training_plans'
+        back_populates='training_plans',
+        foreign_keys=[trainer_id]
     )
 
     def __repr__(self):

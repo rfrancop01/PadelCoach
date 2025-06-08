@@ -22,7 +22,8 @@ def list_invitations():
         "token": inv.token,
         "created_at": inv.created_at,
         "expires_at": inv.created_at + datetime.timedelta(hours=48),
-        "is_used": inv.used
+        "is_used": inv.used,
+        "level": inv.level
     } for inv in invitations]
     return jsonify({"message": "Lista de invitaciones", "results": results}), 200
 
@@ -61,7 +62,7 @@ def upload_invitations():
                 continue
         try:
             token = create_invitation(email, role="student", level=level)
-            link = f"https://padelcoach.com/register?token={token}&email={email}"
+            link = f"http://localhost:5174/register?token={token}&email={email}"
             send_invitation_email(email, link)
             invitations_sent.append({
                 "email": email,
@@ -94,7 +95,7 @@ def resend_invitation():
     db.session.delete(invitation)
     db.session.commit()
     new_token = create_invitation(email)
-    link = f"https://padelcoach.com/register?token={new_token}&email={email}"
+    link = f"http://localhost:5174/signup?token={new_token}&email={email}"
     send_invitation_email(email, link)
     return jsonify({
         "message": "Invitación reenviada",

@@ -163,7 +163,7 @@ useEffect(() => {
       <section className="bg-white rounded-xl shadow-md p-6">
         {user?.role === "admin" ? (
           <div className="flex justify-between items-start mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Todas las sesiones</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Sesiones</h2>
             <button
               onClick={() => {
                 setEditingSession(null);

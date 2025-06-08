@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getUserById, updateUser } from "../../api/users";
+import { getUserById, updateUser as apiUpdateUser } from "../../api/users";
 import { Spinner } from "../../components/Spinner";
 import { EnvelopeIcon, PhoneIcon, UserIcon, CakeIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { UserProfileFormModal } from "./UserProfileFormModal";
+import { useAuth } from "../../context/AuthContext";
 
 export const UserProfile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
+  const { updateUser } = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -45,26 +48,11 @@ export const UserProfile = () => {
         )}
         <div className="flex flex-col items-center space-y-2 mb-6">
           <div className="relative inline-block mt-7 mb-3">
-            {user.photo_url ? (
+            {user.photo_url && !hasImageError ? (
               <img
                 src={user.photo_url}
                 alt="Foto de perfil"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                  const fallback = document.createElement('div');
-                  fallback.className = `w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto flex items-center justify-center text-5xl font-bold ${
-                    user.is_active ? "ring-green-400" : "ring-red-400"
-                  } ${
-                    user.role === "admin"
-                      ? "bg-gray-200 text-gray-800"
-                      : user.role === "trainer"
-                      ? "bg-blue-200 text-blue-800"
-                      : "bg-green-200 text-green-800"
-                  }`;
-                  fallback.innerText = `${user.name?.charAt(0).toUpperCase() || ''}${user.last_name?.charAt(0).toUpperCase() || ''}`;
-                  e.target.parentNode.appendChild(fallback);
-                }}
+                onError={() => setHasImageError(true)}
                 className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto object-cover transition duration-300 ease-in-out ${
                   user.is_active ? "ring-green-400" : "ring-red-400"
                 }`}
@@ -81,7 +69,8 @@ export const UserProfile = () => {
                     : "bg-green-200 text-green-800"
                 }`}
               >
-                {user.name?.charAt(0).toUpperCase()}{user.last_name?.charAt(0).toUpperCase()}
+                {user.name?.charAt(0).toUpperCase()}
+                {user.last_name?.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
@@ -117,12 +106,13 @@ export const UserProfile = () => {
         initialData={user}
         onSave={async (formData) => {
           try {
-            const res = await updateUser(user.id, formData, {
+            const res = await apiUpdateUser(user.id, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
             });
             setUser(res.data.results);
+            updateUser(res.data.results);
             setIsModalOpen(false);
           } catch (err) {
             console.error("Error al actualizar usuario", err);

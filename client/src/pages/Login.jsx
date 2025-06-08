@@ -144,7 +144,7 @@ export const Login = () => {
 
           <div className="text-right mt-4">
             <Link
-              to="/password-reset/request"
+              to="/password-reset"
               className="text-primary hover:text-accent text-sm font-semibold"
             >
               ¿Olvidaste contraseña?

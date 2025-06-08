@@ -38,18 +38,24 @@ export const TrainerFormModal = ({ isOpen, onClose, onSave, initialData }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" onClick={onClose}>
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 transition"
-          aria-label="Cerrar"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 8.586l4.95-4.95 1.414 1.414L11.414 10l4.95 4.95-1.414 1.414L10 11.414l-4.95 4.95-1.414-1.414L8.586 10l-4.95-4.95 1.414-1.414L10 8.586z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <h2 className="text-xl font-bold mb-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-2 sm:px-4 overflow-y-auto pt-[72px]"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md mx-auto my-8 rounded-xl overflow-hidden bg-white shadow-md p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition"
+            aria-label="Cerrar modal"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
           {initialData ? "Editar Entrenador" : "Crear Entrenador"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,17 +99,17 @@ export const TrainerFormModal = ({ isOpen, onClose, onSave, initialData }) => {
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex justify-end gap-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:underline"
+              className="bg-gray-200 text-gray-800 h-[40px] px-4 py-2 rounded-md shadow-sm hover:bg-gray-300 transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="bg-primary text-white px-4 py-2 rounded hover:bg-primaryLight transition"
+              className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition font-medium"
             >
               Guardar
             </button>

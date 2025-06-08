@@ -89,72 +89,74 @@ export const CourtList = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-md">
-      <div className="flex justify-between items-start mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Todas las pistas</h1>
-        <button
-          onClick={handleAdd}
-          className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90"
-        >
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <PlusIcon className="h-5 w-5 shrink-0" />
-            <span className="truncate">Añadir pista</span>
-          </div>
-        </button>
-      </div>
-
-      <div className="flex flex-wrap gap-4 mb-8">
-        <select
-          value={filterLocation}
-          onChange={(e) => setFilterLocation(e.target.value)}
-          className="bg-gray-100 text-gray-900 px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
-        >
-          <option value="">Todas las ubicaciones</option>
-          {uniqueLocations.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="bg-gray-100 text-gray-900 px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
-        >
-          <option value="">Todos los tipos</option>
-          {uniqueTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {loading ? (
-        <p className="text-gray-600">Cargando pistas...</p>
-      ) : filteredCourts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredCourts.map((court) => (
-            <CourtCard
-              key={court.id}
-              court={court}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+    <div className="max-w-7xl mx-auto p-10 space-y-12 bg-white/60 backdrop-blur-md rounded-lg shadow-xl">
+      <div className="max-w-7xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-md">
+        <div className="flex justify-between items-start mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Todas las pistas</h1>
+          <button
+            onClick={handleAdd}
+            className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90"
+          >
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <PlusIcon className="h-5 w-5 shrink-0" />
+              <span className="truncate">Añadir pista</span>
+            </div>
+          </button>
         </div>
-      ) : (
-        <p className="text-gray-500">No se encontraron pistas con esos filtros.</p>
-      )}
 
-      <CourtFormModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={handleSave}
-        courtToEdit={editingCourt}
-        locations={uniqueLocations} 
-      />
+        <div className="flex flex-wrap gap-4 mb-8">
+          <select
+            value={filterLocation}
+            onChange={(e) => setFilterLocation(e.target.value)}
+            className="bg-gray-100 text-gray-900 px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+          >
+            <option value="">Todas las ubicaciones</option>
+            {uniqueLocations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="bg-gray-100 text-gray-900 px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+          >
+            <option value="">Todos los tipos</option>
+            {uniqueTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {loading ? (
+          <p className="text-gray-600">Cargando pistas...</p>
+        ) : filteredCourts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {filteredCourts.map((court) => (
+              <CourtCard
+                key={court.id}
+                court={court}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No se encontraron pistas con esos filtros.</p>
+        )}
+
+        <CourtFormModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={handleSave}
+          courtToEdit={editingCourt}
+          locations={uniqueLocations}
+        />
+      </div>
     </div>
   );
 };

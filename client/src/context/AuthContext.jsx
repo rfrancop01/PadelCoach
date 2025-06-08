@@ -26,64 +26,64 @@ export const AuthProvider = ({ children }) => {
     navigate('/login')
   }, [navigate])
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  const rawUser = localStorage.getItem('user');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const rawUser = localStorage.getItem('user');
 
-  // Si no hay token o no hay user, no hacemos logout, solo dejamos que el login se muestre.
-  if (!token || !rawUser) {
-    setLoading(false);
-    return;
-  }
+    // Si no hay token o no hay user, no hacemos logout, solo dejamos que el login se muestre.
+    if (!token || !rawUser) {
+      setLoading(false);
+      return;
+    }
 
-  // Si llegamos aquí, sí había token y rawUser: ahora validamos la expiración del JWT.
-  try {
-    const parsedUser = JSON.parse(rawUser);
-    setUser(parsedUser);
+    // Si llegamos aquí, sí había token y rawUser: ahora validamos la expiración del JWT.
+    try {
+      const parsedUser = JSON.parse(rawUser);
+      setUser(parsedUser);
 
-    const payloadBase64 = token.split('.')[1];
-    if (payloadBase64) {
-      const payloadJson = atob(payloadBase64);
-      const payload = JSON.parse(payloadJson);
-      if (payload.exp) {
-        const expiresAtMs = payload.exp * 1000;
-        const nowMs = Date.now();
-        const timeout = expiresAtMs - nowMs;
-        if (timeout > 0) {
-          // Programamos el logout al expirar
-          const timerId = setTimeout(() => {
+      const payloadBase64 = token.split('.')[1];
+      if (payloadBase64) {
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+        if (payload.exp) {
+          const expiresAtMs = payload.exp * 1000;
+          const nowMs = Date.now();
+          const timeout = expiresAtMs - nowMs;
+          if (timeout > 0) {
+            // Programamos el logout al expirar
+            const timerId = setTimeout(() => {
+              logout();
+            }, timeout);
+            return () => clearTimeout(timerId);
+          } else {
+            // Si ya está expirado, cerramos sesión
             logout();
-          }, timeout);
-          return () => clearTimeout(timerId);
-        } else {
-          // Si ya está expirado, cerramos sesión
-          logout();
+          }
         }
       }
+    } catch (error) {
+      localStorage.removeItem('user');
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    localStorage.removeItem('user');
-    setUser(null);
-  } finally {
-    setLoading(false);
-  }
-}, [logout]);
-const login = async (credentials) => {
-  try {
-    const { access_token, results } = await apiLogin(credentials);
+  }, [logout]);
+  const login = async (credentials) => {
+    try {
+      const { access_token, results } = await apiLogin(credentials);
 
-    if (access_token && results) {
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(results));
-      setUser(results);
-      return { success: true, user: results };
-    } else {
-      return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
+      if (access_token && results) {
+        localStorage.setItem('token', access_token);
+        localStorage.setItem('user', JSON.stringify(results));
+        setUser(results);
+        return { success: true, user: results };
+      } else {
+        return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
+      }
+    } catch (error) {
+      return { success: false, message: error.message || "Error desconocido durante el login" };
     }
-  } catch (error) {
-    return { success: false, message: error.message || "Error desconocido durante el login" };
-  }
-};
+  };
 
   const signup = async (data) => {
     try {
@@ -110,9 +110,50 @@ const login = async (credentials) => {
     await resetPassword(payload)
   }
 
+  const updateUser = (updatedFields) => {
+    setUser(prev => {
+      const newUser = { ...prev, ...updatedFields };
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token || !user?.id) {
+      console.warn("Token o user.id no disponibles para refrescar usuario.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/users/${user.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        credentials: "include",
+      });
+
+      const contentType = res.headers.get("content-type");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Respuesta no OK:", res.status, errorText);
+        return;
+      }
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Respuesta no es JSON:", text);
+        return;
+      }
+
+      const data = await res.json();
+      setUser(prev => ({ ...prev, ...data.results }));
+    } catch (err) {
+      console.error("Error al refrescar el usuario:", err);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, signup, logout, requestReset, reset }}
+      value={{ user, loading, login, signup, logout, requestReset, reset, updateUser, refreshUser }}
     >
       {!loading && (
         <>

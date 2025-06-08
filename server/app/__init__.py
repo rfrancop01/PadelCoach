@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 import os
 
@@ -24,7 +25,7 @@ def create_app():
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     app.url_map.strict_slashes = False
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}}, supports_credentials=True)
 
     # Inicialización de extensiones
     db.init_app(app)
@@ -54,8 +55,9 @@ def create_app():
     app.register_blueprint(user_routes, url_prefix='/api/users')
 
     # Ruta para servir archivos subidos
-    @app.route('/static/uploads/<filename>')
+    @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        upload_folder = os.path.join(app.root_path, 'static', 'uploads')
+        return send_from_directory(upload_folder, filename)
 
     return app

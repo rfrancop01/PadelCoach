@@ -89,44 +89,46 @@ export const CourtFormModal = ({ isOpen, onClose, onSave, courtToEdit, locations
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-4 overflow-auto pt-[72px]"
+      className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-2 sm:px-4 overflow-y-auto pt-[72px]"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md bg-white rounded-xl shadow-lg p-6"
+        className="relative w-full max-w-md mx-auto my-8 rounded-xl overflow-hidden bg-white shadow-md p-6 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
-          aria-label="Cerrar modal"
-        >
-          <XMarkIcon className="h-6 w-6" />
-        </button>
-        <h2 className="text-xl font-semibold mb-4">
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition"
+            aria-label="Cerrar modal"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
           {courtToEdit ? "Editar pista" : "Crear pista"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Nombre</label>
+            <label className="text-sm text-gray-700 mb-1 block">Nombre</label>
             <input
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border border-gray-300 rounded-md px-3 py-2 h-[40px] text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full"
             />
           </div>
 
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Ubicación</label>
+            <label className="text-sm text-gray-700 mb-1 block">Ubicación</label>
             {!isNewLocation ? (
               <select
                 name="locationSelect"
                 value={locations.includes(form.location) ? form.location : ""}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="border border-gray-300 rounded-md px-3 py-2 h-[40px] text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full"
                 required
               >
                 <option value="" disabled>
@@ -146,19 +148,19 @@ export const CourtFormModal = ({ isOpen, onClose, onSave, courtToEdit, locations
                 value={newLocationValue}
                 onChange={handleChange}
                 placeholder="Escribe nueva ubicación"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="border border-gray-300 rounded-md px-3 py-2 h-[40px] text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full"
                 required
               />
             )}
           </div>
 
           <div>
-            <label className="block mb-1 font-medium text-gray-700">Tipo</label>
+            <label className="text-sm text-gray-700 mb-1 block">Tipo</label>
             <select
               name="court_type"
               value={form.court_type}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border border-gray-300 rounded-md px-3 py-2 h-[40px] text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full"
             >
               <option value="indoor">Indoor</option>
               <option value="outdoor">Outdoor</option>
@@ -169,13 +171,13 @@ export const CourtFormModal = ({ isOpen, onClose, onSave, courtToEdit, locations
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition"
+              className="bg-gray-200 text-gray-800 h-[40px] px-4 py-2 rounded-md shadow-sm hover:bg-gray-300 transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="bg-accent text-gray-900 px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition font-medium"
+              className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition font-medium"
             >
               {courtToEdit ? "Guardar cambios" : "Crear pista"}
             </button>

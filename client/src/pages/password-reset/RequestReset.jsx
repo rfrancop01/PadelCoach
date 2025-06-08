@@ -1,27 +1,45 @@
 import { useState } from "react";
+import { requestPasswordReset } from "../../api/auth"; // asegúrate de importar bien
+import { toast } from "react-toastify";
+import bgImage from "../../assets/fondo.jpg";
 
 export const RequestReset = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí deberías llamar a tu endpoint de reset password
-    setMessage("Si el correo está registrado, se ha enviado un enlace de recuperación.");
+    setLoading(true);
+    try {
+      const res = await requestPasswordReset(email);
+      toast.success(res.message || "Si el correo está registrado, se ha enviado un enlace de recuperación.");
+      setEmail("");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error al enviar el enlace de recuperación.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-          Recuperar contraseña
-        </h2>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input type="hidden" name="remember" value="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
+    <>
+      {/* Fondo de pantalla */}
+      <div
+        className="fixed inset-0 bg-cover bg-center z-0"
+        style={{ backgroundImage: `url(${bgImage})` }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
+      </div>
+
+      <div className="relative min-h-screen flex items-center justify-center px-6 z-10">
+        <div className="bg-white bg-opacity-90 rounded-3xl shadow-2xl max-w-md w-full p-10 backdrop-blur-md border border-white/30">
+          <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">
+            Recuperar contraseña
+          </h2>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email-address" className="sr-only">
-                Dirección de correo
+              <label htmlFor="email-address" className="block mb-1 font-semibold text-gray-700">
+                Correo electrónico
               </label>
               <input
                 id="email-address"
@@ -29,27 +47,26 @@ export const RequestReset = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Correo electrónico"
+                disabled={loading}
+                className="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary"
+                placeholder="tuemail@ejemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={loading}
+              className={`w-full py-2 text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                loading ? "bg-blue-400" : "bg-primary hover:bg-accent"
+              } transition`}
             >
-              Enviar enlace de recuperación
+              {loading ? "Enviando..." : "Enviar enlace de recuperación"}
             </button>
-          </div>
-        </form>
-        {message && (
-          <p className="mt-4 text-green-600 text-sm text-center">{message}</p>
-        )}
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

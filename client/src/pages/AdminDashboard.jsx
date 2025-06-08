@@ -118,27 +118,27 @@ export const AdminDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <a href="/admin/users" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Usuarios"></span>
-            <span>Gestionar Usuarios</span>
-          </a>
-          <a href="/sessions" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
-            <span role="img" aria-label="Sesiones"></span>
-            <span>Gestionar Sesiones</span>
+            <span>Usuarios</span>
           </a>
           <a href="/admin/trainers" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Entrenadores"></span>
-            <span>Gestionar Entrenadores</span>
-          </a>
-          <a href="/admin/courts" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
-            <span role="img" aria-label="Pistas"></span>
-            <span>Gestionar Pistas</span>
-          </a>
-          <a href="/admin/trainingplans" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
-            <span role="img" aria-label="Planes"></span>
-            <span>Planes de Entrenamiento</span>
+            <span>Entrenadores</span>
           </a>
           <a href="/admin/students" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
             <span role="img" aria-label="Alumnos"></span>
-            <span>Gestionar Alumnos</span>
+            <span>Alumnos</span>
+          </a>
+          <a href="/admin/courts" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+            <span role="img" aria-label="Pistas"></span>
+            <span>Pistas</span>
+          </a>
+          <a href="/sessions" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+            <span role="img" aria-label="Sesiones"></span>
+            <span>Sesiones</span>
+          </a>
+          <a href="/admin/trainingplans" className="flex items-center justify-center gap-2 bg-primaryLight hover:bg-primary text-white rounded-lg py-3 px-5 transition font-medium shadow hover:shadow-md">
+            <span role="img" aria-label="Planes"></span>
+            <span>Entrenamientos</span>
           </a>
         </div>
       </section>
@@ -162,7 +162,7 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="flex-1 bg-white/80 backdrop-blur-md rounded-xl shadow-md p-8 flex flex-col justify-center">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Distribución de usuarios por rol</h2>
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">Distribución de usuarios</h2>
             {roleDistribution.length === 0 ? (
               <p>No hay datos para mostrar</p>
             ) : (

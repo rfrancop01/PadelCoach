@@ -105,7 +105,7 @@ def request_password_reset():
     db.session.add(prt)
     db.session.commit()
 
-    reset_link = f"https://padelcoach.com/reset-password?token={token}"
+    reset_link = f"http://localhost:5174/reset-password?token={token}"
     try:
         send_invitation_email(
             email,
