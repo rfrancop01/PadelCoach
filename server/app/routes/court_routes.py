@@ -113,6 +113,10 @@ def delete_court(id):
     court = db.session.get(Courts, id)
     if not court:
         return jsonify({"message": "Court not found"}), 404
+
+    if court.sessions:
+        return jsonify({"message": "No se puede eliminar la pista porque tiene sesiones asociadas."}), 400
+
     db.session.delete(court)
     db.session.commit()
     return jsonify({"message": f"Court {id} deleted successfully"}), 200

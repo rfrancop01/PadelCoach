@@ -28,46 +28,42 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const rawUser = localStorage.getItem('user');
 
-    // Si no hay token o no hay user, no hacemos logout, solo dejamos que el login se muestre.
-    if (!token || !rawUser) {
+    if (!token) {
       setLoading(false);
       return;
     }
 
-    // Si llegamos aquí, sí había token y rawUser: ahora validamos la expiración del JWT.
-    try {
-      const parsedUser = JSON.parse(rawUser);
-      setUser(parsedUser);
-
-      const payloadBase64 = token.split('.')[1];
-      if (payloadBase64) {
-        const payloadJson = atob(payloadBase64);
-        const payload = JSON.parse(payloadJson);
-        if (payload.exp) {
-          const expiresAtMs = payload.exp * 1000;
-          const nowMs = Date.now();
-          const timeout = expiresAtMs - nowMs;
-          if (timeout > 0) {
-            // Programamos el logout al expirar
-            const timerId = setTimeout(() => {
+    const fetchAndSetUser = async () => {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        if (payloadBase64) {
+          const payloadJson = atob(payloadBase64);
+          const payload = JSON.parse(payloadJson);
+          if (payload.exp) {
+            const expiresAtMs = payload.exp * 1000;
+            const nowMs = Date.now();
+            const timeout = expiresAtMs - nowMs;
+            if (timeout > 0) {
+              const timerId = setTimeout(() => logout(), timeout);
+              await refreshUser();
+              return () => clearTimeout(timerId);
+            } else {
               logout();
-            }, timeout);
-            return () => clearTimeout(timerId);
-          } else {
-            // Si ya está expirado, cerramos sesión
-            logout();
+            }
           }
         }
+      } catch (e) {
+        console.error("Fallo al procesar token:", e);
+        logout();
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      localStorage.removeItem('user');
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchAndSetUser();
   }, [logout]);
+
   const login = async (credentials) => {
     try {
       const { access_token, results } = await apiLogin(credentials);
@@ -76,7 +72,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', access_token);
         localStorage.setItem('user', JSON.stringify(results));
         setUser(results);
-        return { success: true, user: results };
+        await refreshUser(results.id);
+        const updatedUser = JSON.parse(localStorage.getItem('user'));
+        setUser(updatedUser);
+        return { success: true, user: updatedUser };
       } else {
         return { success: false, message: "Login: datos inválidos (falta access_token o results)" };
       }
@@ -117,15 +116,32 @@ export const AuthProvider = ({ children }) => {
       return newUser;
     });
   };
-  const refreshUser = async () => {
+  const refreshUser = async (id = null) => {
     const token = localStorage.getItem('token');
-    if (!token || !user?.id) {
-      console.warn("Token o user.id no disponibles para refrescar usuario.");
+    if (!token) {
+      console.warn("Token no disponible para refrescar usuario.");
       return;
     }
 
+    if (!id) {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        id = storedUser?.id;
+      } catch {
+        console.warn("No se pudo obtener el ID desde localStorage.");
+        return;
+      }
+    }
+
+    if (!id) {
+      console.warn("ID de usuario no disponible para refrescar.");
+      return;
+    }
+
+    const userId = id;
+
     try {
-      const res = await fetch(`/api/users/${user.id}`, {
+      const res = await fetch(`/api/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -145,7 +161,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await res.json();
-      setUser(prev => ({ ...prev, ...data.results }));
+      setUser(data.results);
+      localStorage.setItem('user', JSON.stringify(data.results));
     } catch (err) {
       console.error("Error al refrescar el usuario:", err);
     }

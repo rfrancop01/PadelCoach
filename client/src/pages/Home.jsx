@@ -16,7 +16,7 @@ export const Home = () => {
       >
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-12">
           <div className="space-y-6 max-w-3xl mx-auto">
-            <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-md text-slate-900">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
               Organiza tus <span className="text-slate-900">entrenamientos</span> de pádel sin complicaciones
             </h1>
             <p className="text-lg text-slate-900/90">

@@ -63,6 +63,7 @@ export default function AppRoutes() {
           <Route path="/students/:id" element={<StudentDetail />} />
           <Route path="/trainers/:id" element={<TrainerDetail />} />
           <Route path="/courts/:id" element={<CourtDetail />} />
+          <Route path="/training-plans" element={<TrainingPlanList />} />
 
           {/* Shared for trainer and student */}
           <Route path="/sessions" element={<SessionsPage />} />

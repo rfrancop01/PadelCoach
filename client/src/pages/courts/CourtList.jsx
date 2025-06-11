@@ -18,6 +18,8 @@ export const CourtList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCourt, setEditingCourt] = useState(null);
 
+  const [isEditingMode, setIsEditingMode] = useState(false);
+
   // Carga inicial de pistas
   const fetchCourts = () => {
     setLoading(true);
@@ -34,11 +36,17 @@ export const CourtList = () => {
     fetchCourts();
   }, []);
 
-  const filteredCourts = courts.filter((court) => {
-    const matchesLocation = filterLocation ? court.location === filterLocation : true;
-    const matchesType = filterType ? court.court_type === filterType : true;
-    return matchesLocation && matchesType;
-  });
+  const filteredCourts = courts
+    .filter((court) => {
+      const matchesLocation = filterLocation ? court.location === filterLocation : true;
+      const matchesType = filterType ? court.court_type === filterType : true;
+      return matchesLocation && matchesType;
+    })
+    .sort((a, b) => {
+      const locationCompare = a.location.localeCompare(b.location);
+      if (locationCompare !== 0) return locationCompare;
+      return a.name.localeCompare(b.name);
+    });
 
   const uniqueLocations = [...new Set(courts.map((c) => c.location))];
   const uniqueTypes = [...new Set(courts.map((c) => c.court_type))];
@@ -70,7 +78,8 @@ export const CourtList = () => {
               fetchCourts();
             } catch (error) {
               console.error("Error eliminando pista:", error);
-              toast.error("Error al eliminar pista");
+              const errorMsg = error.response?.data?.message || "Error al eliminar pista";
+              toast.error(errorMsg);
             }
           },
         },
@@ -81,7 +90,6 @@ export const CourtList = () => {
     });
   };
 
-  // Callback al guardar en modal (crear/editar)
   const handleSave = () => {
     setModalOpen(false);
     setEditingCourt(null);
@@ -93,15 +101,23 @@ export const CourtList = () => {
       <div className="max-w-7xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-md">
         <div className="flex justify-between items-start mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Todas las pistas</h1>
-          <button
-            onClick={handleAdd}
-            className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90"
-          >
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <PlusIcon className="h-5 w-5 shrink-0" />
-              <span className="truncate">Añadir pista</span>
-            </div>
-          </button>
+          <div className="flex items-center gap-x-3">
+            <button
+              onClick={() => setIsEditingMode((prev) => !prev)}
+              className="bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200 h-[40px] px-4 py-2 rounded-md transition font-medium"
+            >
+              {isEditingMode ? "Salir de edición" : "Editar pistas"}
+            </button>
+            <button
+              onClick={handleAdd}
+              className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90"
+            >
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <PlusIcon className="h-5 w-5 shrink-0" />
+                <span className="truncate">Añadir pista</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 mb-8">
@@ -142,6 +158,7 @@ export const CourtList = () => {
                 court={court}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                isEditingMode={isEditingMode}
               />
             ))}
           </div>

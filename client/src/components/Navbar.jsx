@@ -32,9 +32,11 @@ export const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    setHasImageError(false);
-    setPhotoVersion(Date.now());
-  }, [user, user?.photo_url]);
+    if (user?.photo_url) {
+      setHasImageError(false);
+      setPhotoVersion(Date.now());
+    }
+  }, [user?.photo_url]);
 
   const handleLogout = () => {
     logout();
@@ -108,8 +110,8 @@ export const Navbar = () => {
                 >
                   {user.photo_url && !hasImageError ? (
                     <img
-                      key={user.photo_url}
-                      src={`${user.photo_url}${user.photo_url?.includes('?') ? '&' : '?'}v=${photoVersion}`}
+                      key={photoVersion}
+                      src={`${user.photo_url.replace('http://backend:8000', 'http://localhost:8000')}${user.photo_url?.includes('?') ? '&' : '?'}v=${photoVersion}`}
                       alt="Avatar"
                       className="w-10 h-10 rounded-full object-cover"
                       onLoad={() => setHasImageError(false)}
@@ -117,12 +119,7 @@ export const Navbar = () => {
                     />
                   ) : (
                     <div
-                      className={`w-10 h-10 rounded-full ring-2 ring-yellow-400 bg-white shadow-sm flex items-center justify-center text-[15px] font-bold leading-[1] tracking-tight text-center ${user.role === "admin"
-                          ? "bg-gray-200 text-gray-800"
-                          : user.role === "trainer"
-                            ? "bg-blue-200 text-blue-800"
-                            : "bg-green-200 text-green-800"
-                        }`}
+                      className="w-10 h-10 rounded-full ring-2 ring-blue-400 bg-white shadow-sm flex items-center justify-center text-[15px] font-bold leading-[1] tracking-tight text-center text-gray-800"
                     >
                       {user.name?.charAt(0).toUpperCase()}
                       {user.last_name?.charAt(0).toUpperCase()}

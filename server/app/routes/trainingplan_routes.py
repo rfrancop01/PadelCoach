@@ -18,11 +18,10 @@ def allowed_file(filename):
 
 def save_file(file):
     filename = secure_filename(file.filename)
-    upload_folder = os.path.join(current_app.root_path, 'uploads', 'trainingplans')
+    upload_folder = os.path.join(current_app.static_folder, 'uploads', 'trainingplans')
     os.makedirs(upload_folder, exist_ok=True)
     filepath = os.path.join(upload_folder, filename)
     file.save(filepath)
-    # Devuelve la URL relativa para acceder al archivo desde el frontend
     return f'/uploads/trainingplans/{filename}'
 
 @trainingplan_routes.route('/', methods=['GET'])
@@ -111,6 +110,11 @@ def delete_trainingplan(id):
     plan = db.session.get(TrainingPlan, id)
     if not plan:
         return jsonify({"message": "Training Plan no encontrado"}), 404
+    # Borrar archivo PDF correspondiente si existe
+    if plan.file_url:
+        file_path = os.path.join(current_app.static_folder, plan.file_url.replace('/uploads/', ''))
+        if os.path.exists(file_path):
+            os.remove(file_path)
     db.session.delete(plan)
     db.session.commit()
     return jsonify({"message": f"Training Plan {id} eliminado correctamente"}), 200

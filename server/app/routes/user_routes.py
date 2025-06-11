@@ -77,7 +77,9 @@ def get_user(id):
         return jsonify({"message": "Unauthorized access"}), 403
     result = user.serialize()
     if user.photo_url:
-        result["photo_url"] = url_for("uploaded_file", filename=user.photo_url, _external=True)
+        from flask import request
+        import os
+        result["photo_url"] = f"{request.host_url.rstrip('/')}/uploads/users/{os.path.basename(user.photo_url)}"
     return jsonify({"message": f"User {id} found", "results": result}), 200
 
 
@@ -121,14 +123,17 @@ def update_user(id):
     if photo_file and photo_file.filename != "":
         unique_id = uuid.uuid4().hex
         filename = f"user_{user.id}_{unique_id}_" + secure_filename(photo_file.filename)
-        save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        user_folder = os.path.join(current_app.static_folder, "uploads", "users")
+        os.makedirs(user_folder, exist_ok=True)
+        save_path = os.path.join(user_folder, filename)
         photo_file.save(save_path)
-        user.photo_url = filename
+        user.photo_url = f"users/{filename}"
 
     # Si se solicita eliminar la foto
     if data.get("remove_photo") == "true":
         if user.photo_url:
-            photo_path = os.path.join(current_app.config["UPLOAD_FOLDER"], user.photo_url)
+            photo_path = os.path.join(current_app.static_folder, "uploads", *user.photo_url.split("/"))
+            print("Intentando eliminar:", photo_path)  # Debug opcional
             if os.path.exists(photo_path):
                 os.remove(photo_path)
             user.photo_url = None
@@ -138,7 +143,7 @@ def update_user(id):
     # Construir respuesta JSON, incluyendo URL pública de la foto
     result = user.serialize()
     if user.photo_url:
-        result["photo_url"] = url_for("uploaded_file", filename=user.photo_url, _external=True)
+        result["photo_url"] = f"{request.host_url.rstrip('/')}/uploads/users/{os.path.basename(user.photo_url)}"
     return jsonify({"message": f"User {id} updated successfully", "results": result}), 200
 
 @user_routes.route('/<int:id>', methods=['DELETE'])
@@ -174,10 +179,11 @@ def upload_user_photo(id):
         return jsonify({"message": "Nombre de archivo vacío"}), 400
 
     filename = f"user_{user.id}_{uuid.uuid4().hex}{os.path.splitext(photo.filename)[1]}"
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    user_folder = os.path.join(current_app.static_folder, "uploads", "users")
+    os.makedirs(user_folder, exist_ok=True)
+    file_path = os.path.join(user_folder, filename)
     photo.save(file_path)
-
-    user.photo_url = filename
+    user.photo_url = f"users/{filename}"
     db.session.commit()
 
     return jsonify({"message": "Foto actualizada correctamente", "results": user.serialize()}), 200

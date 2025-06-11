@@ -59,15 +59,7 @@ export const UserProfile = () => {
               />
             ) : (
               <div
-                className={`w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto flex items-center justify-center text-5xl font-bold ${
-                  user.is_active ? "ring-green-400" : "ring-red-400"
-                } ${
-                  user.role === "admin"
-                    ? "bg-gray-200 text-gray-800"
-                    : user.role === "trainer"
-                    ? "bg-blue-200 text-blue-800"
-                    : "bg-green-200 text-green-800"
-                }`}
+                className="w-28 h-28 rounded-full border border-white shadow-lg ring-4 ring-offset-2 mx-auto flex items-center justify-center text-5xl font-bold bg-white text-gray-800"
               >
                 {user.name?.charAt(0).toUpperCase()}
                 {user.last_name?.charAt(0).toUpperCase()}

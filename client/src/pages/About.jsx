@@ -5,7 +5,7 @@ export const About = () => {
   return (
     <div className="min-h-screen bg-cover bg-center text-primaryDark py-16 px-6 font-sans">
       <div className="max-w-5xl mx-auto space-y-16 bg-white/70 backdrop-blur-lg rounded-2xl p-10 shadow-lg">
-        <h1 className="text-5xl font-extrabold text-center tracking-tight drop-shadow-sm text-primaryDark">Sobre PadelCoach</h1>
+        <h1 className="text-4xl md:text-5xl font-extrabold text-center tracking-tight text-primaryDark max-w-3xl mx-auto px-4">Sobre PadelCoach</h1>
 
         <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="space-y-6 bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow">
           <h2 className="text-3xl font-bold text-primaryDark tracking-tight">Nuestra misión</h2>

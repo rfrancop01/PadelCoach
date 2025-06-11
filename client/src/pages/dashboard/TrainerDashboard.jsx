@@ -28,9 +28,9 @@ export const TrainerDashboard = () => {
         const trainerId = trainerRes.data.results.id;
 
         const sessionsRes = await getSessionsByTrainer(trainerId);
-        const plansRes = await getTrainingPlans(trainerId);
+        const plansRes = await getTrainingPlans();
 
-        setPlans(plansRes.data);
+        setPlans(plansRes.data.results);
         setSessions(sessionsRes.data.results);
 
         const sessionsByDay = {};
@@ -113,7 +113,7 @@ export const TrainerDashboard = () => {
           <div className="bg-white rounded-xl shadow p-6 text-center">
             <h3 className="text-lg font-medium text-gray-600 mb-2">Planes activos</h3>
             <p className="text-4xl font-bold text-accent">{plans?.length || 0}</p>
-            <Link to="/training-plans" className="text-sm text-yellow-500 hover:underline block mt-2">
+            <Link to="/training-plans?readonly=true" className="text-sm text-yellow-500 hover:underline block mt-2">
               Ver todos los planes →
             </Link>
           </div>

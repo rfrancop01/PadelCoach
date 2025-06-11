@@ -94,7 +94,7 @@ def resend_invitation():
         return jsonify({"message": "No se encontró invitación para este email"}), 404
     db.session.delete(invitation)
     db.session.commit()
-    new_token = create_invitation(email)
+    new_token = create_invitation(email, role="student", level=invitation.level)
     link = f"http://localhost:5174/signup?token={new_token}&email={email}"
     send_invitation_email(email, link)
     return jsonify({

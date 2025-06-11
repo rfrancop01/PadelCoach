@@ -5,6 +5,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -13,6 +14,8 @@ export const TrainingPlanList = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const fetchPlans = async () => {
     setLoading(true);
@@ -43,7 +46,16 @@ export const TrainingPlanList = () => {
               toast.success("Plan eliminado correctamente");
               fetchPlans();
             } catch (error) {
-              toast.error("Error al eliminar plan");
+              if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message &&
+                (error.response.status >= 400 && error.response.status < 600)
+              ) {
+                toast.error(`Error: ${error.response.data.message}`);
+              } else {
+                toast.error("Error al eliminar plan");
+              }
             }
           },
         },
@@ -73,13 +85,15 @@ export const TrainingPlanList = () => {
       <div className="max-w-7xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-md">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Planes de Entrenamiento</h1>
-          <button
-            onClick={handleAdd}
-            className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90 flex items-center gap-2"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Nuevo Plan
-          </button>
+          {isAdmin && (
+            <button
+              onClick={handleAdd}
+              className="bg-accent text-gray-900 h-[40px] px-4 py-2 rounded-md shadow-md hover:shadow-lg hover:brightness-110 transition w-fit font-medium hover:bg-accent/90 flex items-center gap-2"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Nuevo Plan
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -93,8 +107,8 @@ export const TrainingPlanList = () => {
                 <th className="px-6 py-3">Título</th>
                 <th className="px-6 py-3">Descripción</th>
                 <th className="px-6 py-3">Archivo</th>
-                <th className="px-6 py-3 text-center">Editar</th>
-                <th className="px-6 py-3 text-center">Eliminar</th>
+                {isAdmin && <th className="px-6 py-3 text-center">Editar</th>}
+                {isAdmin && <th className="px-6 py-3 text-center">Eliminar</th>}
               </tr>
             </thead>
             <tbody>
@@ -104,7 +118,7 @@ export const TrainingPlanList = () => {
                   <td className="px-6 py-4 truncate max-w-xs">{plan.description || "-"}</td>
                   <td className="px-6 py-4">
                     <a
-                      href={`http://localhost:8000/uploads/trainingplans/1.pdf`}
+                      href={`${API_URL.replace(/\/$/, "")}/static${plan.file_url}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-yellow-600 hover:underline"
@@ -112,24 +126,28 @@ export const TrainingPlanList = () => {
                       Ver archivo
                     </a>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleEdit(plan)}
-                      className="p-1 rounded border border-primary text-primary bg-primary/10 hover:bg-primary/20 transition"
-                      title="Editar"
-                    >
-                      <PencilIcon className="h-5 w-5 text-primary hover:text-primaryLight" />
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleDelete(plan.id)}
-                      className="p-1 rounded border border-red-600 text-red-600 bg-red-100 hover:bg-red-200 transition"
-                      title="Eliminar"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleEdit(plan)}
+                        className="p-1 rounded border border-primary text-primary bg-primary/10 hover:bg-primary/20 transition"
+                        title="Editar"
+                      >
+                        <PencilIcon className="h-5 w-5 text-primary hover:text-primaryLight" />
+                      </button>
+                    </td>
+                  )}
+                  {isAdmin && (
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleDelete(plan.id)}
+                        className="p-1 rounded border border-red-600 text-red-600 bg-red-100 hover:bg-red-200 transition"
+                        title="Eliminar"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -137,12 +155,14 @@ export const TrainingPlanList = () => {
         )}
       </div>
 
-      <TrainingPlanFormModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={handleSave}
-        planToEdit={editingPlan}
-      />
+      {isAdmin && (
+        <TrainingPlanFormModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={handleSave}
+          planToEdit={editingPlan}
+        />
+      )}
     </div>
   );
 };
